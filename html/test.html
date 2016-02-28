@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="UTF-8"/>
+<title>L2.1</title>
+</head>
+<body>
+<p>L2.1 example</p>
+
+<form action="javascript:void(null);" onsubmit="log()">
+Login: <input type="text" id="login"/>
+Password: <input type="password" id="password"/>
+<input type="submit" value="Login">
+</form>
+<br>
+<form action="javascript:void(null);" onsubmit="logout()">
+<input type="submit" value="Logout">
+</form>
+<br>
+<form action="javascript:void(null);" onsubmit="create()">
+Login: <input type="text" id="loginc"/>
+Password: <input type="password" id="passwordc"/>
+Email: <input type="email" id="emailc"/>
+<input type="submit" value="Create">
+</form>
+
+<script src="jquery-2.2.1.min.js"></script>
+<script type="text/javascript" language="javascript">
+ 	function log() {
+      var login = $('#login').val();
+      var pass = $('#password').val();
+      var msg = '{ "login": "' + login + '", "password": "' + pass + '" }';
+        $.ajax({
+          'type': 'PUT',
+          'dataType': 'json',
+          'contentType': 'application/json',
+          'url': '/api/session/',
+          'data': msg,
+          'success': function(data) {
+            alert('Все ок');
+          },
+          'error':  function(xhr, str){
+	         alert('Возникла ошибка: ' + xhr.responseCode);
+          }
+        });
+ 
+    }
+  function logout() {
+      $.ajax({
+          'type': 'DELETE',
+          'url': '/api/session/',
+          'success': function(data) {
+            alert('Все ок');
+          },
+          'error':  function(xhr, str){
+            alert('Возникла ошибка: ' + xhr.responseCode);
+          }
+      });
+      return false;
+  }
+
+  function create() {
+      var login = $('#loginc').val();
+      var pass = $('#passwordc').val();
+      var email = $('#emailc').val();
+      var msg = '{ "login": "' + login + '", "password": "' + pass + '", "email" : "' + email + '" }';
+
+      $.ajax({
+      'type': 'PUT',
+      'dataType': 'json',
+      'contentType': 'application/json',
+      'url': '/api/user/',
+      'data': msg,      
+      'success': function(data) {
+        alert('Все ок ' + data.id);
+      },
+      'error':  function(xhr, str){
+        alert('Возникла ошибка: ' + xhr.responseCode);
+      }
+      });
+  }
+</script>
+
+</body>
+</html>
