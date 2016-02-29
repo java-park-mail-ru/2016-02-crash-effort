@@ -4,11 +4,9 @@ import main.AccountService;
 
 import javax.inject.Singleton;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Created by e.shubin on 25.02.2016.
@@ -17,6 +15,7 @@ import java.util.Collection;
 @Path("/user")
 public class Users {
     private AccountService accountService;
+    final String cookieAuth = "auth";
 
     public Users(AccountService accountService) {
         this.accountService = accountService;
@@ -44,33 +43,39 @@ public class Users {
     @POST
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response editUserById(@PathParam("id") String id) {
-        final UserProfile user = accountService.getUser(id);
-        if(user == null){
+    public Response editUserById(UserProfile inUser, @PathParam("id") String id, @Context HttpHeaders headers) {
+        UserProfile user = accountService.getUser(id);
+        Map<String, Cookie> map = headers.getCookies();
+        if(user == null || !(map.containsKey(cookieAuth) && map.get(cookieAuth).getValue().equals(id))){
             return Response.status(Response.Status.FORBIDDEN).build();
         } else {
-            return Response.status(Response.Status.OK).entity(user).build();
+            user.setLogin(inUser.getLogin());
+            user.setPassword(inUser.getPassword());
+            user.setEmail(inUser.getEmail());
+            return Response.status(Response.Status.OK).entity("{ \"id\" : " + user.getId() + " }").build();
         }
     }
 
     @DELETE
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteUserById(@PathParam("id") String id) {
-        final UserProfile user = accountService.getUser(id);
-        if(user == null){
+    public Response deleteUserById(UserProfile inUser, @PathParam("id") String id, @Context HttpHeaders headers) {
+        UserProfile user = accountService.getUser(id);
+        Map<String, Cookie> map = headers.getCookies();
+        if(user == null || !(map.containsKey(cookieAuth) && map.get(cookieAuth).getValue().equals(id))){
             return Response.status(Response.Status.FORBIDDEN).build();
         } else {
-            return Response.status(Response.Status.OK).entity(user).build();
+            accountService.deleteUser(Long.valueOf(id));
+            return Response.status(Response.Status.OK).build();
         }
     }
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createUser(UserProfile user, @Context HttpHeaders headers){
-        if(accountService.addUser(user.getLogin(), user)){
-            return Response.status(Response.Status.OK).entity("{ \"id\" : " + user.getUserId() + " }").build();
+    public Response createUser(UserProfile inUser, @Context HttpHeaders headers) {
+        if(accountService.addUser(inUser.getLogin(), inUser)){
+            return Response.status(Response.Status.OK).entity("{ \"id\" : " + inUser.getId() + " }").build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).build();
         }

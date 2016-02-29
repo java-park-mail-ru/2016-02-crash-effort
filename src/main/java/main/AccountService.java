@@ -27,7 +27,7 @@ public class AccountService {
         if (user != null)
             return false;
         long newid = Incrementor.getNext();
-        userProfile.setUserId(newid);
+        userProfile.setId(newid);
         users.put(newid, userProfile);
         return true;
     }
@@ -43,5 +43,9 @@ public class AccountService {
                 return value;
         }
         return null;
+    }
+
+    public void deleteUser(long id) {
+        users.remove(id);
     }
 }

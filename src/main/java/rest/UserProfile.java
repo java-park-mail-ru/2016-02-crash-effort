@@ -13,20 +13,21 @@ public class UserProfile {
     @NotNull
     private String email;
 
-    private long userId;
+    @SuppressWarnings("all") //name need for API
+    private long id;
 
     public UserProfile() {
         login = "";
         password = "";
         email = "";
-        userId = -1;
+        id = -1;
     }
 
     public UserProfile(@NotNull String login, @NotNull String password, @NotNull String email, long id) {
         this.login = login;
         this.password = password;
         this.email = email;
-        this.userId = id;
+        this.id = id;
     }
 
     @NotNull
@@ -56,9 +57,9 @@ public class UserProfile {
         this.email = email;
     }
 
-    public long getUserId() { return userId; }
+    public long getId() { return id; }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setId(long userId) {
+        this.id = userId;
     }
 }

@@ -23,6 +23,20 @@ Password: <input type="password" id="passwordc"/>
 Email: <input type="email" id="emailc"/>
 <input type="submit" value="Create">
 </form>
+<br>
+<form action="javascript:void(null);" onsubmit="edit()">
+Login: <input type="text" id="logine"/>
+Password: <input type="password" id="passworde"/>
+Email: <input type="email" id="emaile"/>
+Id: <input type="text" id="ide"/>
+<input type="submit" value="Edit">
+</form>
+<br>
+<form action="javascript:void(null);" onsubmit="del()">
+Id: <input type="text" id="idd"/>
+<input type="submit" value="Delete">
+</form>
+
 
 <script src="jquery-2.2.1.min.js"></script>
 <script type="text/javascript" language="javascript">
@@ -56,7 +70,6 @@ Email: <input type="email" id="emailc"/>
             alert('Возникла ошибка: ' + xhr.responseCode);
           }
       });
-      return false;
   }
 
   function create() {
@@ -71,6 +84,42 @@ Email: <input type="email" id="emailc"/>
       'contentType': 'application/json',
       'url': '/api/user/',
       'data': msg,      
+      'success': function(data) {
+        alert('Все ок ' + data.id);
+      },
+      'error':  function(xhr, str){
+        alert('Возникла ошибка: ' + xhr.responseCode);
+      }
+      });
+  }
+
+  function edit() {
+      var login = $('#logine').val();
+      var pass = $('#passworde').val();
+      var email = $('#emaile').val();
+      var id = $('#ide').val();
+      var msg = '{ "login": "' + login + '", "password": "' + pass + '", "email" : "' + email + '" }';
+
+      $.ajax({
+      'type': 'POST',
+      'dataType': 'json',
+      'contentType': 'application/json',
+      'url': '/api/user/' + id,
+      'data': msg,      
+      'success': function(data) {
+        alert('Все ок ' + data.id);
+      },
+      'error':  function(xhr, str){
+        alert('Возникла ошибка: ' + xhr.responseCode);
+      }
+      });
+  }
+  function del() {
+      var id = $('#idd').val();
+
+      $.ajax({
+      'type': 'DELETE',
+      'url': '/api/user/' + id,  
       'success': function(data) {
         alert('Все ок ' + data.id);
       },

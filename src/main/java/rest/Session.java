@@ -43,11 +43,11 @@ public class Session {
     public Response loginUser(UserProfile inuser, @Context HttpHeaders headers) {
         UserProfile user = accountService.getUserByLogin(inuser.getLogin());
         if (user != null && inuser.getPassword().equals(user.getPassword())) {
-            NewCookie cookie = new NewCookie(cookieAuth, String.valueOf(user.getUserId()));
+            NewCookie cookie = new NewCookie(cookieAuth, String.valueOf(user.getId()), "/", "localhost", "", -1, false);
 
-            return Response.status(Response.Status.OK).entity("{ \"id\" : " + user.getUserId() + " }").cookie(cookie).build();
+            return Response.status(Response.Status.OK).entity("{ \"id\" : " + user.getId() + " }").cookie(cookie).build();
         } else {
-            return Response.status(Response.Status.FORBIDDEN).build();
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
     }
 
@@ -57,8 +57,7 @@ public class Session {
         Map<String, Cookie> map = headers.getCookies();
         Response.ResponseBuilder responseBuilder;
         if (map.containsKey(cookieAuth)) {
-            Cookie inCookie = map.get(cookieAuth);
-            NewCookie cookie = new NewCookie(inCookie, "logout", -1, new Date(0), false, false);
+            NewCookie cookie = new NewCookie(cookieAuth, "", "/", "localhost", 0, "", -1, new Date(0), false, false);
             responseBuilder = Response.status(Response.Status.OK).cookie(cookie);
         } else {
             responseBuilder = Response.status(Response.Status.UNAUTHORIZED);
