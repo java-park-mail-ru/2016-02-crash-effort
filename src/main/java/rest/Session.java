@@ -1,10 +1,14 @@
 package rest;
 
-import main.AccountService;
+import org.json.JSONObject;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Cookie;
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Map;
 
@@ -14,11 +18,14 @@ import java.util.Map;
 @Singleton
 @Path("/session")
 public class Session {
-    private AccountService accountService;
-    final String cookieAuth = "auth";
+    public static final String COOKIE_SESSION = "session";
 
-    public Session(AccountService accountService) {
-        this.accountService = accountService;
+    private String getHash(HttpHeaders headers, String password) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        String toHash = headers.getHeaderString("User-Agent") + password;
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(toHash.getBytes("UTF-8"));
+
+        return (new HexBinaryAdapter()).marshal(md.digest());
     }
 
     @GET
@@ -26,10 +33,10 @@ public class Session {
     public Response checkAuth(@Context HttpHeaders headers) {
         Map<String, Cookie> map = headers.getCookies();
         Response.ResponseBuilder responseBuilder;
-        if (map.containsKey(cookieAuth)) {
-            String id = map.get(cookieAuth).getValue();
-            String entity = "{ \"id\" : " + id + " }";
-            responseBuilder = Response.status(Response.Status.OK).entity(entity);
+        if (map.containsKey(COOKIE_SESSION)) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("id", UserData.getAccountService().getIdBySession(map.get(COOKIE_SESSION).getValue()));
+            responseBuilder = Response.status(Response.Status.OK).entity(jsonObject.toString());
         } else {
             responseBuilder = Response.status(Response.Status.UNAUTHORIZED);
         }
@@ -40,12 +47,13 @@ public class Session {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response loginUser(UserProfile inuser, @Context HttpHeaders headers) {
-        UserProfile user = accountService.getUserByLogin(inuser.getLogin());
+    public Response loginUser(UserProfile inuser, @Context HttpHeaders headers) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        UserProfile user = UserData.getAccountService().getUserByLogin(inuser.getLogin());
         if (user != null && inuser.getPassword().equals(user.getPassword())) {
-            NewCookie cookie = new NewCookie(cookieAuth, String.valueOf(user.getId()), "/", "localhost", "", -1, false);
-
-            return Response.status(Response.Status.OK).entity("{ \"id\" : " + user.getId() + " }").cookie(cookie).build();
+            String hash = getHash(headers, user.getPassword());
+            UserData.getAccountService().addSession(hash, user.getId());
+            NewCookie cookie = new NewCookie(COOKIE_SESSION, hash, "/", "", "", -1, false);
+            return Response.status(Response.Status.OK).entity(user.getJsonId()).cookie(cookie).build();
         } else {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -56,8 +64,9 @@ public class Session {
     public Response logoutUser(@Context HttpHeaders headers) {
         Map<String, Cookie> map = headers.getCookies();
         Response.ResponseBuilder responseBuilder;
-        if (map.containsKey(cookieAuth)) {
-            NewCookie cookie = new NewCookie(cookieAuth, "", "/", "localhost", 0, "", -1, new Date(0), false, false);
+        if (map.containsKey(COOKIE_SESSION)) {
+            NewCookie cookie = new NewCookie(COOKIE_SESSION, "", "/", "", 0, "", -1, new Date(0), false, false);
+            UserData.getAccountService().deleteSession(map.get(COOKIE_SESSION).getValue());
             responseBuilder = Response.status(Response.Status.OK).cookie(cookie);
         } else {
             responseBuilder = Response.status(Response.Status.UNAUTHORIZED);

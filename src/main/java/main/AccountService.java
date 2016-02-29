@@ -1,5 +1,6 @@
 package main;
 
+import org.jetbrains.annotations.Nullable;
 import rest.UserProfile;
 import java.util.Collection;
 import java.util.Map;
@@ -10,25 +11,19 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class AccountService {
     private Map<Long, UserProfile> users = new ConcurrentHashMap<>();
+    private Map<String, Long> hashes = new ConcurrentHashMap<>();
 
     public AccountService() {
-        long id = Incrementor.getNext();
-        users.put(id, new UserProfile("admin", "admin", "admin@admin.com", id));
-        id = Incrementor.getNext();
-        users.put(id, new UserProfile("guest", "12345", "guest@guest.com", id));
-    }
-
-    public Collection<UserProfile> getAllUsers() {
-        return users.values();
+        users.put(0L, new UserProfile("admin", "admin", "admin@admin.com"));
+        users.put(1L, new UserProfile("guest", "12345", "guest@guest.com"));
     }
 
     public boolean addUser(String userName, UserProfile userProfile) {
         UserProfile user = getUserByLogin(userName);
         if (user != null)
             return false;
-        long newid = Incrementor.getNext();
-        userProfile.setId(newid);
-        users.put(newid, userProfile);
+        user = new UserProfile(userProfile);
+        users.put(user.getId(), user);
         return true;
     }
 
@@ -36,6 +31,7 @@ public class AccountService {
         return users.get(Long.valueOf(id));
     }
 
+    @Nullable
     public UserProfile getUserByLogin(String login) {
         for(Map.Entry<Long, UserProfile> entry : users.entrySet()) {
             UserProfile value = entry.getValue();
@@ -48,4 +44,17 @@ public class AccountService {
     public void deleteUser(long id) {
         users.remove(id);
     }
+
+    public void addSession(String hash, long id) {
+        hashes.put(hash, id);
+    }
+
+    public void deleteSession(String hash) {
+        hashes.remove(hash);
+    }
+
+    public long getIdBySession(String hash) {
+        return hashes.get(hash);
+    }
+
 }
