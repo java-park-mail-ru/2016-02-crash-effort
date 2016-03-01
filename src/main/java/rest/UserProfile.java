@@ -1,6 +1,5 @@
 package rest;
 
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import java.util.concurrent.atomic.AtomicLong;
@@ -9,10 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author esin88
  */
 public class UserProfile {
-    private static final AtomicLong ID_GENETATOR = new AtomicLong(-1);
-
-    @Contract(pure = true)
-    public static long getLastId() { return ID_GENETATOR.get(); }
+    private static final AtomicLong ID_GENETATOR = new AtomicLong();
 
     @NotNull
     private String login;
@@ -35,14 +31,14 @@ public class UserProfile {
         login = other.login;
         password = other.password;
         email = other.email;
-        id = ID_GENETATOR.incrementAndGet();
+        id = ID_GENETATOR.getAndIncrement();
     }
 
     public UserProfile(@NotNull String login, @NotNull String password, @NotNull String email) {
         this.login = login;
         this.password = password;
         this.email = email;
-        this.id = ID_GENETATOR.incrementAndGet();
+        this.id = ID_GENETATOR.getAndIncrement();
     }
 
     @NotNull

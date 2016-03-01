@@ -38,7 +38,6 @@ public class Main {
         ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setDirectoriesListed(true);
         resourceHandler.setWelcomeFiles(new String[]{ "index.html" });
-
         resourceHandler.setResourceBase("html");
 
         HandlerList handlers = new HandlerList();

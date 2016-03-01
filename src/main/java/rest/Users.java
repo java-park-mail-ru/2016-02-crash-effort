@@ -1,11 +1,9 @@
 package rest;
 
-import org.json.JSONObject;
 import javax.inject.Singleton;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.util.Date;
-import java.util.Map;
 
 /**
  * Created by e.shubin on 25.02.2016.
@@ -17,10 +15,10 @@ public class Users {
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUserById(@PathParam("id") String id, @Context HttpHeaders headers) {
-        Map<String, Cookie> map = headers.getCookies();
-        final UserProfile user = UserData.getAccountService().getUser(id);
-        if (user == null || !(map.containsKey(Session.COOKIE_SESSION))) {
+    public Response getUserById(@PathParam("id") String id, @Context HttpServletRequest request) {
+        final String sessionId = request.getSession().getId();
+        final UserProfile user = UserData.getAccountService().getUser(Long.valueOf(id));
+        if (user == null || !UserData.getAccountService().loggedIn(sessionId)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         } else {
             return Response.status(Response.Status.OK).entity(user.toJsonInfo()).build();
@@ -30,44 +28,44 @@ public class Users {
     @POST
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response editUserById(UserProfile inUser, @PathParam("id") String id, @Context HttpHeaders headers) {
-        UserProfile user = UserData.getAccountService().getUser(id);
-        Map<String, Cookie> map = headers.getCookies();
-        if(user == null || !(map.containsKey(Session.COOKIE_SESSION)
-                && String.valueOf(UserData.getAccountService().getIdBySession(map.get(Session.COOKIE_SESSION).getValue())).equals(id))){
-            return Response.status(Response.Status.FORBIDDEN).build();
-        } else {
+    public Response editUserById(UserProfile inUser, @PathParam("id") String id, @Context HttpServletRequest request) {
+        final String sessionId = request.getSession().getId();
+        UserProfile user = UserData.getAccountService().getUser(Long.valueOf(id));
+        UserProfile loggedInUser = UserData.getAccountService().getUserBySession(sessionId);
+        if (user != null && loggedInUser != null && user.equals(loggedInUser)) {
             user.setLogin(inUser.getLogin());
             user.setPassword(inUser.getPassword());
             user.setEmail(inUser.getEmail());
             return Response.status(Response.Status.OK).entity(user.getJsonId()).build();
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
         }
     }
 
     @DELETE
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteUserById(UserProfile inUser, @PathParam("id") String id, @Context HttpHeaders headers) {
-        UserProfile user = UserData.getAccountService().getUser(id);
-        Map<String, Cookie> map = headers.getCookies();
-        if (user == null || !(map.containsKey(Session.COOKIE_SESSION)
-                && String.valueOf(UserData.getAccountService().getIdBySession(map.get(Session.COOKIE_SESSION).getValue())).equals(id))){
-            return Response.status(Response.Status.FORBIDDEN).build();
-        } else {
+    public Response deleteUserById(UserProfile inUser, @PathParam("id") String id, @Context HttpServletRequest request) {
+        final String sessionId = request.getSession().getId();
+        UserProfile user = UserData.getAccountService().getUser(Long.valueOf(id));
+        UserProfile loggedInUser = UserData.getAccountService().getUserBySession(sessionId);
+
+        if (user != null && loggedInUser != null && user.equals(loggedInUser)) {
+            UserData.getAccountService().logout(sessionId);
             UserData.getAccountService().deleteUser(Long.valueOf(id));
-            NewCookie cookie = new NewCookie(Session.COOKIE_SESSION, "", "/", "", 0, "", -1, new Date(0), false, false);
-            return Response.status(Response.Status.OK).cookie(cookie).build();
+            return Response.status(Response.Status.OK).build();
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
         }
     }
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createUser(UserProfile inUser, @Context HttpHeaders headers) {
-        if(UserData.getAccountService().addUser(inUser.getLogin(), inUser)){
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("id", UserProfile.getLastId());
-            return Response.status(Response.Status.OK).entity(jsonObject.toString()).build();
+    public Response createUser(UserProfile inUser) {
+        UserProfile user = UserData.getAccountService().addUser(inUser.getLogin(), inUser);
+        if (user != null) {
+            return Response.status(Response.Status.OK).entity(user.getJsonId()).build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).build();
         }

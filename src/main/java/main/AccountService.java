@@ -3,37 +3,43 @@ package main;
 import org.jetbrains.annotations.Nullable;
 import rest.UserProfile;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author esin88
  */
 public class AccountService {
-    private Map<Long, UserProfile> users = new ConcurrentHashMap<>();
-    private Map<String, Long> hashes = new ConcurrentHashMap<>();
+    private Map<String, UserProfile> loggedInUsers = new ConcurrentHashMap<>();
+    private Vector<UserProfile> registeredUsers = new Vector<>();
 
     public AccountService() {
-        users.put(0L, new UserProfile("admin", "admin", "admin@admin.com"));
-        users.put(1L, new UserProfile("guest", "12345", "guest@guest.com"));
+        registeredUsers.add(new UserProfile("admin", "admin", "admin@admin.com"));
+        registeredUsers.add(new UserProfile("guest", "12345", "guest@guest.com"));
     }
 
-    public boolean addUser(String userName, UserProfile userProfile) {
+    @Nullable
+    public UserProfile addUser(String userName, UserProfile userProfile) {
         UserProfile user = getUserByLogin(userName);
         if (user != null)
-            return false;
+            return null;
         user = new UserProfile(userProfile);
-        users.put(user.getId(), user);
-        return true;
+        registeredUsers.add(user);
+        return user;
     }
 
-    public UserProfile getUser(String id) {
-        return users.get(Long.valueOf(id));
+    @Nullable
+    public UserProfile getUser(long id) {
+        for(UserProfile value : registeredUsers) {
+            if (value.getId() == id)
+                return value;
+        }
+        return null;
     }
 
     @Nullable
     public UserProfile getUserByLogin(String login) {
-        for(Map.Entry<Long, UserProfile> entry : users.entrySet()) {
-            UserProfile value = entry.getValue();
+        for(UserProfile value : registeredUsers) {
             if (value.getLogin().equals(login))
                 return value;
         }
@@ -41,19 +47,29 @@ public class AccountService {
     }
 
     public void deleteUser(long id) {
-        users.remove(id);
+        int k = 0;
+        for(UserProfile value : registeredUsers) {
+            if (value.getId() == id) {
+                registeredUsers.removeElementAt(k);
+                break;
+            }
+            ++k;
+        }
     }
 
-    public void addSession(String hash, long id) {
-        hashes.put(hash, id);
+    public void login(String hash, UserProfile userProfile) {
+        loggedInUsers.put(hash, userProfile);
     }
 
-    public void deleteSession(String hash) {
-        hashes.remove(hash);
+    public UserProfile getUserBySession(String hash) {
+        return loggedInUsers.get(hash);
     }
 
-    public long getIdBySession(String hash) {
-        return hashes.get(hash);
+    public boolean loggedIn(String hash) {
+        return loggedInUsers.containsKey(hash);
     }
 
+    public void logout(String hash) {
+        loggedInUsers.remove(hash);
+    }
 }

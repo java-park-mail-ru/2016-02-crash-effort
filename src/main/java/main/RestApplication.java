@@ -1,9 +1,7 @@
 package main;
 
 import rest.Session;
-import rest.UserData;
 import rest.Users;
-
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import java.util.HashSet;

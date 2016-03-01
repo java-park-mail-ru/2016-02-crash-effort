@@ -1,7 +1,6 @@
 package rest;
 
 import main.AccountService;
-
 import javax.inject.Singleton;
 
 /**
