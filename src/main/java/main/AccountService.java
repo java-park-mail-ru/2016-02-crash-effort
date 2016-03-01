@@ -1,21 +1,19 @@
 package main;
 
 import org.jetbrains.annotations.Nullable;
-
 import java.util.Map;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author esin88
  */
 public class AccountService {
-    private Map<String, UserProfile> loggedInUsers = new ConcurrentHashMap<>();
-    private Vector<UserProfile> registeredUsers = new Vector<>();
+    private Map<String, UserProfile> namesToProfile = new ConcurrentHashMap<>();
+    private Map<Long, UserProfile> idToProfile = new ConcurrentHashMap<>();
 
     public AccountService() {
-        registeredUsers.add(new UserProfile("admin", "admin", "admin@admin.com"));
-        registeredUsers.add(new UserProfile("guest", "12345", "guest@guest.com"));
+        idToProfile.put(UserProfile.getLastId(), new UserProfile("admin", "admin", "admin@admin.com"));
+        idToProfile.put(UserProfile.getLastId(),new UserProfile("guest", "12345", "guest@guest.com"));
     }
 
     @Nullable
@@ -23,23 +21,21 @@ public class AccountService {
         UserProfile user = getUserByLogin(userName);
         if (user != null)
             return null;
+        long id = UserProfile.getLastId();
         user = new UserProfile(userProfile);
-        registeredUsers.add(user);
+        idToProfile.put(id, user);
         return user;
     }
 
     @Nullable
     public UserProfile getUser(long id) {
-        for(UserProfile value : registeredUsers) {
-            if (value.getId() == id)
-                return value;
-        }
-        return null;
+          return idToProfile.get(id);
     }
 
     @Nullable
     public UserProfile getUserByLogin(String login) {
-        for(UserProfile value : registeredUsers) {
+        for(Map.Entry<Long, UserProfile> entry : idToProfile.entrySet()) {
+            UserProfile value = entry.getValue();
             if (value.getLogin().equals(login))
                 return value;
         }
@@ -47,29 +43,18 @@ public class AccountService {
     }
 
     public void deleteUser(long id) {
-        int k = 0;
-        for(UserProfile value : registeredUsers) {
-            if (value.getId() == id) {
-                registeredUsers.removeElementAt(k);
-                break;
-            }
-            ++k;
-        }
+        idToProfile.remove(id);
     }
 
-    public void login(String hash, UserProfile userProfile) {
-        loggedInUsers.put(hash, userProfile);
-    }
+    public void login(String hash, UserProfile userProfile) { namesToProfile.put(hash, userProfile); }
 
-    public UserProfile getUserBySession(String hash) {
-        return loggedInUsers.get(hash);
-    }
+    public UserProfile getUserBySession(String hash) { return namesToProfile.get(hash); }
 
-    public boolean loggedIn(String hash) {
-        return loggedInUsers.containsKey(hash);
+    public boolean isLoggedIn(String hash) {
+        return namesToProfile.containsKey(hash);
     }
 
     public void logout(String hash) {
-        loggedInUsers.remove(hash);
+        namesToProfile.remove(hash);
     }
 }

@@ -1,5 +1,6 @@
 package main;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import java.util.concurrent.atomic.AtomicLong;
@@ -9,6 +10,11 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class UserProfile {
     private static final AtomicLong ID_GENETATOR = new AtomicLong();
+
+    @Contract(pure = true)
+    public static long getLastId() {
+        return ID_GENETATOR.get();
+    }
 
     @NotNull
     private String login;
