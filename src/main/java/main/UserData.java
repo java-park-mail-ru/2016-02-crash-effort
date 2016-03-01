@@ -1,4 +1,4 @@
-package rest;
+package main;
 
 import main.AccountService;
 import javax.inject.Singleton;

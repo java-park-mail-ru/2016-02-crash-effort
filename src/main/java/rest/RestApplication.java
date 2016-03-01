@@ -1,4 +1,4 @@
-package main;
+package rest;
 
 import rest.Session;
 import rest.Users;

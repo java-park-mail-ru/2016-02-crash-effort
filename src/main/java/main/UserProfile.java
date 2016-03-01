@@ -1,4 +1,4 @@
-package rest;
+package main;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;

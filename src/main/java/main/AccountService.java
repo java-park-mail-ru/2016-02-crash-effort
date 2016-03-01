@@ -1,7 +1,7 @@
 package main;
 
 import org.jetbrains.annotations.Nullable;
-import rest.UserProfile;
+
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;

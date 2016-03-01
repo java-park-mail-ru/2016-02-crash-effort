@@ -1,5 +1,8 @@
 package rest;
 
+import main.UserData;
+import main.UserProfile;
+
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
