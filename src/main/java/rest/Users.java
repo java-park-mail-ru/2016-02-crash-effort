@@ -20,10 +20,13 @@ public class Users {
 
     @Nullable
     private Long parseId(@NotNull String rawId) {
-        if (Main.isNumeric(rawId))
-            return Long.valueOf(rawId);
-        else
-            return null;
+        Long id;
+        try {
+            id = Long.valueOf(rawId);
+        } catch (NumberFormatException e) {
+            id = null;
+        }
+        return id;
     }
 
     @GET
