@@ -10,6 +10,8 @@ import java.util.Set;
  */
 @ApplicationPath("api")
 public class RestApplication extends Application {
+    public static final String EMPTY_JSON = "{}";
+
     @Override
     public Set<Object> getSingletons() {
         final HashSet<Object> objects = new HashSet<>();

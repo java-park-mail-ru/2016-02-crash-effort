@@ -36,11 +36,11 @@ public class Users {
         final String sessionId = request.getSession().getId();
         final Long longId = parseId(id);
         if (longId == null)
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
 
         final UserProfile user = UserData.getAccountService().getUser(longId);
         if (user == null || !UserData.getAccountService().isLoggedIn(sessionId)) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(RestApplication.EMPTY_JSON).build();
         } else {
             return Response.status(Response.Status.OK).entity(user.toJsonInfo()).build();
         }
@@ -54,13 +54,13 @@ public class Users {
         UserProfile loggedInUser = UserData.getAccountService().getUserBySession(sessionId);
         final Long longId = parseId(id);
         if (longId == null)
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
 
         if (loggedInUser != null && loggedInUser.getId() == longId) {
             UserData.getAccountService().editUser(loggedInUser, inUser);
             return Response.status(Response.Status.OK).entity(loggedInUser.getJsonId()).build();
         } else {
-            return Response.status(Response.Status.FORBIDDEN).build();
+            return Response.status(Response.Status.FORBIDDEN).entity(RestApplication.EMPTY_JSON).build();
         }
     }
 
@@ -72,14 +72,14 @@ public class Users {
         UserProfile loggedInUser = UserData.getAccountService().getUserBySession(sessionId);
         final Long longId = parseId(id);
         if (longId == null)
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
 
         if (loggedInUser != null && loggedInUser.getId() == longId) {
             UserData.getAccountService().logout(sessionId);
             UserData.getAccountService().deleteUser(longId);
-            return Response.status(Response.Status.OK).build();
+            return Response.status(Response.Status.OK).entity(RestApplication.EMPTY_JSON).build();
         } else {
-            return Response.status(Response.Status.FORBIDDEN).build();
+            return Response.status(Response.Status.FORBIDDEN).entity(RestApplication.EMPTY_JSON).build();
         }
     }
 
@@ -91,7 +91,7 @@ public class Users {
         if (user != null) {
             return Response.status(Response.Status.OK).entity(user.getJsonId()).build();
         } else {
-            return Response.status(Response.Status.FORBIDDEN).build();
+            return Response.status(Response.Status.FORBIDDEN).entity(RestApplication.EMPTY_JSON).build();
         }
     }
 }

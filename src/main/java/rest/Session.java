@@ -22,7 +22,7 @@ public class Session {
         if (user != null) {
             return Response.status(Response.Status.OK).entity(user.getJsonId()).build();
         } else {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(RestApplication.EMPTY_JSON).build();
         }
     }
 
@@ -36,7 +36,7 @@ public class Session {
             UserData.getAccountService().login(sessionId, user);
             return Response.status(Response.Status.OK).entity(user.getJsonId()).build();
         } else {
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
         }
     }
 
@@ -47,9 +47,9 @@ public class Session {
         UserProfile user = UserData.getAccountService().getUserBySession(sessionId);
         if (user != null) {
             UserData.getAccountService().logout(sessionId);
-            return Response.status(Response.Status.OK).build();
+            return Response.status(Response.Status.OK).entity(RestApplication.EMPTY_JSON).build();
         } else {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(RestApplication.EMPTY_JSON).build();
         }
     }
 }
