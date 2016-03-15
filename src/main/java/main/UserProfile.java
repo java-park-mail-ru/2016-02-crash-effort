@@ -1,7 +1,7 @@
 package main;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -12,15 +12,13 @@ public class UserProfile {
     private static final AtomicLong ID_GENETATOR = new AtomicLong();
 
     @Contract(pure = true)
-    public static long getLastId() {
-        return ID_GENETATOR.get();
-    }
+    public static long getLastId() { return ID_GENETATOR.get(); }
 
-    @NotNull
+    @NotEmpty
     private String login;
-    @NotNull
+    @NotEmpty
     private String password;
-    @NotNull
+    @NotEmpty
     private String email;
 
     @SuppressWarnings("all") //name need for API
@@ -40,27 +38,27 @@ public class UserProfile {
         id = ID_GENETATOR.getAndIncrement();
     }
 
-    public UserProfile(@NotNull String login, @NotNull String password, @NotNull String email) {
+    public UserProfile(@NotEmpty String login, @NotEmpty String password, @NotEmpty String email) {
         this.login = login;
         this.password = password;
         this.email = email;
         this.id = ID_GENETATOR.getAndIncrement();
     }
 
-    @NotNull
+    @NotEmpty
     public String getLogin() { return login; }
 
-    public void setLogin(@NotNull String login) { this.login = login; }
+    public void setLogin(@NotEmpty String login) { this.login = login; }
 
-    @NotNull
+    @NotEmpty
     public String getPassword() { return password; }
 
-    public void setPassword(@NotNull String password) { this.password = password; }
+    public void setPassword(@NotEmpty String password) { this.password = password; }
 
-    @NotNull
+    @NotEmpty
     public String getEmail() { return email; }
 
-    public void setEmail(@NotNull String email) { this.email = email; }
+    public void setEmail(@NotEmpty String email) { this.email = email; }
 
     public long getId() { return id; }
 
@@ -72,10 +70,20 @@ public class UserProfile {
         return jsonObject.toString();
     }
 
-    public String toJsonInfo() {
+    public String getJsonInfo() {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", id);
         jsonObject.put("login", login);
+        jsonObject.put("email", email);
+        return jsonObject.toString();
+    }
+
+    @Override
+    public String toString() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", id);
+        jsonObject.put("login", login);
+        jsonObject.put("password", password);
         jsonObject.put("email", email);
         return jsonObject.toString();
     }
