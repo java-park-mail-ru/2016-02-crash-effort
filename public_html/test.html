@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="UTF-8"/>
+<title>Tests</title>
+</head>
+<body>
+<p>Example</p>
+
+<form action="javascript:void(null);" onsubmit="log()">
+Login: <input type="text" id="login"/>
+Password: <input type="password" id="password"/>
+<input type="submit" value="Login">
+</form>
+<br>
+<form action="javascript:void(null);" onsubmit="logout()">
+<input type="submit" value="Logout">
+</form>
+<br>
+<form action="javascript:void(null);" onsubmit="create()">
+Login: <input type="text" id="loginc"/>
+Password: <input type="password" id="passwordc"/>
+Email: <input type="email" id="emailc"/>
+<input type="submit" value="Create">
+</form>
+<br>
+<form action="javascript:void(null);" onsubmit="edit()">
+Login: <input type="text" id="logine"/>
+Password: <input type="password" id="passworde"/>
+Email: <input type="email" id="emaile"/>
+Id: <input type="text" id="ide"/>
+<input type="submit" value="Edit">
+</form>
+<br>
+<form action="javascript:void(null);" onsubmit="del()">
+Id: <input type="text" id="idd"/>
+<input type="submit" value="Delete">
+</form>
+
+
+<script src="jquery-2.2.1.min.js"></script>
+<script type="text/javascript" language="javascript">
+ 	function log() {
+      var login = $('#login').val();
+      var pass = $('#password').val();
+      var msg = '{ "login": "' + login + '", "password": "' + pass + '" }';
+        $.ajax({
+          'type': 'PUT',
+          'dataType': 'json',
+          'contentType': 'application/json',
+          'url': '/api/session/',
+          'data': msg,
+          'success': function(data) {
+            alert('Все ок');
+          },
+          'error':  function(xhr, str){
+	         alert('Возникла ошибка: ' + xhr.responseCode);
+          }
+        });
+ 
+    }
+  function logout() {
+      $.ajax({
+          'type': 'DELETE',
+          'url': '/api/session/',
+          'success': function(data) {
+            alert('Все ок');
+          },
+          'error':  function(xhr, str){
+            alert('Возникла ошибка: ' + xhr.responseCode);
+          }
+      });
+  }
+
+  function create() {
+      var login = $('#loginc').val();
+      var pass = $('#passwordc').val();
+      var email = $('#emailc').val();
+      var msg = '{ "login": "' + login + '", "password": "' + pass + '", "email" : "' + email + '" }';
+
+      $.ajax({
+      'type': 'PUT',
+      'dataType': 'json',
+      'contentType': 'application/json',
+      'url': '/api/user/',
+      'data': msg,      
+      'success': function(data) {
+        alert('Все ок ' + data.id);
+      },
+      'error':  function(xhr, str){
+        alert('Возникла ошибка: ' + xhr.responseCode);
+      }
+      });
+  }
+
+  function edit() {
+      var login = $('#logine').val();
+      var pass = $('#passworde').val();
+      var email = $('#emaile').val();
+      var id = $('#ide').val();
+      var msg = '{ "login": "' + login + '", "password": "' + pass + '", "email" : "' + email + '" }';
+
+      $.ajax({
+      'type': 'POST',
+      'dataType': 'json',
+      'contentType': 'application/json',
+      'url': '/api/user/' + id,
+      'data': msg,      
+      'success': function(data) {
+        alert('Все ок ' + data.id);
+      },
+      'error':  function(xhr, str){
+        alert('Возникла ошибка: ' + xhr.responseCode);
+      }
+      });
+  }
+  function del() {
+      var id = $('#idd').val();
+
+      $.ajax({
+      'type': 'DELETE',
+      'url': '/api/user/' + id,  
+      'success': function(data) {
+        alert('Все ок ' + data.id);
+      },
+      'error':  function(xhr, str){
+        alert('Возникла ошибка: ' + xhr.responseCode);
+      }
+      });
+  }
+</script>
+
+</body>
+</html>
