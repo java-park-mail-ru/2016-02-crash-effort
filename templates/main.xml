@@ -1,0 +1,22 @@
+<fest:template xmlns:fest="http://fest.mail.ru" context_name="json">
+    <div id="main" class="row">
+        <div class="col s12 m6 offset-m3">
+            <nav class="nav">
+                <div class="nav-wrapper">
+                    <a class="brand-logo center">SHOCK WORK</a>
+                </div>
+            </nav>
+            <div class="collection">
+                <a href="#login" class="collection-item">
+                    Войти<i class="secondary-content material-icons">send</i>
+                </a>
+                <a href="#registration" class="collection-item">
+                    Регистрация<i class="secondary-content material-icons">send</i>
+                </a>
+                <a href="#scoreboard" class="collection-item">
+                    Счет<i class="secondary-content material-icons">send</i>
+                </a>
+              </div>
+        </div>
+    </div>
+</fest:template>
