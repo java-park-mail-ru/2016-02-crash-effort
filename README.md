@@ -3,9 +3,8 @@ Mastodonts Mail Group (MMG)
 
 Для запуска ставим NPM и Grunt.
 
-sudo add-apt-repository ppa:chris-lea/node.js<br />
 sudo apt-get update<br />
-sudo apt-get install nodejs<br />
+sudo apt-get install nodejs-legacy<br />
 sudo npm install -g grunt-cli<br />
 
 В IntelliJ IDEA в окне Maven запускаем команду grunt:npm, ждем установки пакетов.
