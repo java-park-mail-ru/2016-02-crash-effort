@@ -7,7 +7,7 @@ module.exports = function (grunt) {
                 stderr: true
             },
             server: {
-                command: 'java -jar target/MMG-1.0-jar-with-dependencies.jar 8080'
+                command: 'java -jar target/MMG-1.0.jar 8080'
             }
         },
         fest: {
