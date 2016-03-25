@@ -13,6 +13,8 @@ import org.glassfish.jersey.servlet.ServletContainer;
  */
 public class Main {
 
+    public static final Context CONTEXT = new Context();
+
     public static boolean isNumeric(String s) {
         return s.matches("\\d+");
     }
@@ -26,6 +28,8 @@ public class Main {
             System.err.println("Specify port");
             System.exit(1);
         }
+
+        CONTEXT.put(new AccountService());
 
         System.out.append("Starting at port: ").append(String.valueOf(port)).append('\n');
 

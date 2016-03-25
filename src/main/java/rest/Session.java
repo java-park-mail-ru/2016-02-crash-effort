@@ -1,6 +1,5 @@
 package rest;
 
-import main.UserData;
 import main.UserProfile;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +17,7 @@ public class Session {
     @Produces(MediaType.APPLICATION_JSON)
     public Response checkAuth(@Context HttpServletRequest request) {
         final String sessionId = request.getSession().getId();
-        UserProfile user = UserData.getAccountService().getUserBySession(sessionId);
+        UserProfile user = RestApplication.getAccountService().getUserBySession(sessionId);
         if (user != null) {
             return Response.status(Response.Status.OK).entity(user.getJsonId()).build();
         } else {
@@ -31,9 +30,9 @@ public class Session {
     @Produces(MediaType.APPLICATION_JSON)
     public Response loginUser(UserProfile inuser, @Context HttpServletRequest request) {
         final String sessionId = request.getSession().getId();
-        UserProfile user = UserData.getAccountService().getUserByLogin(inuser.getLogin());
+        UserProfile user = RestApplication.getAccountService().getUserByLogin(inuser.getLogin());
         if (user != null && inuser.getPassword().equals(user.getPassword())) {
-            UserData.getAccountService().login(sessionId, user);
+            RestApplication.getAccountService().login(sessionId, user);
             return Response.status(Response.Status.OK).entity(user.getJsonId()).build();
         } else {
             return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
@@ -44,9 +43,9 @@ public class Session {
     @Produces(MediaType.APPLICATION_JSON)
     public Response logoutUser(@Context HttpServletRequest request) {
         final String sessionId = request.getSession().getId();
-        UserProfile user = UserData.getAccountService().getUserBySession(sessionId);
+        UserProfile user = RestApplication.getAccountService().getUserBySession(sessionId);
         if (user != null) {
-            UserData.getAccountService().logout(sessionId);
+            RestApplication.getAccountService().logout(sessionId);
             return Response.status(Response.Status.OK).entity(RestApplication.EMPTY_JSON).build();
         } else {
             return Response.status(Response.Status.UNAUTHORIZED).entity(RestApplication.EMPTY_JSON).build();
