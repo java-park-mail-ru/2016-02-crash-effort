@@ -6,10 +6,10 @@ package main;
 public interface AccountService {
     UserProfile addUser(UserProfile userProfile);
     UserProfile getUser(long id);
-    void editUser(UserProfile user, UserProfile newData);
-    void deleteUser(long id);
-    void login(String hash, UserProfile userProfile);
-    void logout(String hash);
+    boolean editUser(UserProfile user, UserProfile newData);
+    boolean deleteUser(long id);
+    boolean login(String hash, UserProfile userProfile);
+    boolean logout(String hash);
     boolean isLoggedIn(String hash);
     UserProfile getUserBySession(String hash);
     UserProfile getUserByLogin(String login);

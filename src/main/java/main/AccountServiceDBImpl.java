@@ -51,26 +51,30 @@ public class AccountServiceDBImpl implements AccountService {
     }
 
     @Override
-    public void editUser(UserProfile user, UserProfile newData) {
+    public boolean editUser(UserProfile user, UserProfile newData) {
         try {
             database.execUpdate(String.format("UPDATE User SET login='%s', password='%s', email='%s' WHERE id=%d",
                     newData.getLogin(), newData.getPassword(), newData.getEmail(), user.getId()));
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            return false;
         }
+        return true;
     }
 
     @Override
-    public void deleteUser(long id) {
+    public boolean deleteUser(long id) {
         try {
             database.execUpdate(String.format("DELETE FROM User WHERE id=%d", id));
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            return false;
         }
+        return true;
     }
 
     @Override
-    public void login(String hash, UserProfile userProfile) {
+    public boolean login(String hash, UserProfile userProfile) {
         try {
             database.execUpdate(String.format("INSERT INTO Session_User VALUES ('%s', %d)", hash, userProfile.getId()));
         } catch (SQLException e) {
@@ -79,19 +83,25 @@ public class AccountServiceDBImpl implements AccountService {
                     database.execUpdate(String.format("UPDATE Session_User SET user=%d WHERE session='%s'", userProfile.getId(), hash));
                 } catch (SQLException e1) {
                     System.out.println(e1.getMessage());
+                    return false;
                 }
+            } else {
+                System.out.println(e.getMessage());
+                return false;
             }
-            System.out.println(e.getMessage());
         }
+        return true;
     }
 
     @Override
-    public void logout(String hash) {
+    public boolean logout(String hash) {
         try {
             database.execUpdate(String.format("DELETE FROM Session_User WHERE session='%s'", hash));
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            return false;
         }
+        return true;
     }
 
     @Override

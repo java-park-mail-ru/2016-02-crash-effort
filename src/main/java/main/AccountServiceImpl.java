@@ -47,7 +47,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void editUser(UserProfile user, UserProfile newData) {
+    public boolean editUser(UserProfile user, UserProfile newData) {
         loginToProfile.remove(user.getLogin());
 
         user.setLogin(newData.getLogin());
@@ -55,17 +55,22 @@ public class AccountServiceImpl implements AccountService {
         user.setPassword(newData.getPassword());
 
         loginToProfile.put(user.getLogin(), user);
+        return true;
     }
 
     @Override
-    public void deleteUser(long id) {
+    public boolean deleteUser(long id) {
         String login = idToProfile.get(id).getLogin();
         idToProfile.remove(id);
         loginToProfile.remove(login);
+        return true;
     }
 
     @Override
-    public void login(String hash, UserProfile userProfile) { sessionToProfile.put(hash, userProfile); }
+    public boolean login(String hash, UserProfile userProfile) {
+        sessionToProfile.put(hash, userProfile);
+        return true;
+    }
 
     @Override
     public UserProfile getUserBySession(String hash) { return sessionToProfile.get(hash); }
@@ -76,7 +81,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void logout(String hash) {
+    public boolean logout(String hash) {
         sessionToProfile.remove(hash);
+        return true;
     }
 }

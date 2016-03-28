@@ -16,7 +16,7 @@ public class UserProfile {
     @NotEmpty
     private String email;
 
-    @SuppressWarnings("all") //name need for API
+    @SuppressWarnings("InstanceVariableNamingConvention") //name need for API
     private long id;
 
     public UserProfile() {

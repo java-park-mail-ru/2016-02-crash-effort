@@ -55,8 +55,7 @@ public class Users {
             return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
 
         UserProfile user = RestApplication.getAccountService().addUser(inUser);
-        if (user != null) {
-            RestApplication.getAccountService().login(sessionId, user);
+        if (user != null && RestApplication.getAccountService().login(sessionId, user)) {
             return Response.status(Response.Status.OK).entity(user.getJsonId()).build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).entity(RestApplication.EMPTY_JSON).build();
@@ -76,8 +75,8 @@ public class Users {
         if (longId == null)
             return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
 
-        if (loggedInUser != null && loggedInUser.getId() == longId) {
-            RestApplication.getAccountService().editUser(loggedInUser, inUser);
+        if (loggedInUser != null && loggedInUser.getId() == longId &&
+                RestApplication.getAccountService().editUser(loggedInUser, inUser)) {
             return Response.status(Response.Status.OK).entity(loggedInUser.getJsonId()).build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).entity(RestApplication.EMPTY_JSON).build();
@@ -87,6 +86,7 @@ public class Users {
     @DELETE
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @SuppressWarnings("OverlyComplexBooleanExpression")
     public Response deleteUserById(@PathParam("id") String id, @Context HttpServletRequest request) {
         final String sessionId = request.getSession().getId();
         UserProfile loggedInUser = RestApplication.getAccountService().getUserBySession(sessionId);
@@ -94,10 +94,10 @@ public class Users {
         if (longId == null)
             return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
 
-        if (loggedInUser != null && loggedInUser.getId() == longId) {
-            RestApplication.getAccountService().logout(sessionId);
-            RestApplication.getAccountService().deleteUser(longId);
-            return Response.status(Response.Status.OK).entity(RestApplication.EMPTY_JSON).build();
+        if (loggedInUser != null && loggedInUser.getId() == longId &&
+                RestApplication.getAccountService().logout(sessionId) &&
+                    RestApplication.getAccountService().deleteUser(longId)) {
+                return Response.status(Response.Status.OK).entity(RestApplication.EMPTY_JSON).build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).entity(RestApplication.EMPTY_JSON).build();
         }

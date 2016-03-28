@@ -31,8 +31,8 @@ public class Session {
     public Response loginUser(UserProfile inuser, @Context HttpServletRequest request) {
         final String sessionId = request.getSession().getId();
         UserProfile user = RestApplication.getAccountService().getUserByLogin(inuser.getLogin());
-        if (user != null && inuser.getPassword().equals(user.getPassword())) {
-            RestApplication.getAccountService().login(sessionId, user);
+        if (user != null && inuser.getPassword().equals(user.getPassword()) &&
+                RestApplication.getAccountService().login(sessionId, user)) {
             return Response.status(Response.Status.OK).entity(user.getJsonId()).build();
         } else {
             return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
@@ -44,8 +44,7 @@ public class Session {
     public Response logoutUser(@Context HttpServletRequest request) {
         final String sessionId = request.getSession().getId();
         UserProfile user = RestApplication.getAccountService().getUserBySession(sessionId);
-        if (user != null) {
-            RestApplication.getAccountService().logout(sessionId);
+        if (user != null && RestApplication.getAccountService().logout(sessionId)) {
             return Response.status(Response.Status.OK).entity(RestApplication.EMPTY_JSON).build();
         } else {
             return Response.status(Response.Status.UNAUTHORIZED).entity(RestApplication.EMPTY_JSON).build();
