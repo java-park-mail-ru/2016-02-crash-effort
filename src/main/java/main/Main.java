@@ -8,6 +8,8 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.servlet.ServletContainer;
 
+import java.sql.SQLException;
+
 /**
  * @author esin88
  */
@@ -29,8 +31,13 @@ public class Main {
             System.exit(1);
         }
 
-        AccountService accountService = new AccountServiceDBImpl();
-
+        AccountService accountService;
+        try {
+            accountService = new AccountServiceDBImpl();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
         CONTEXT.put(accountService);
 
         System.out.append("Starting at port: ").append(String.valueOf(port)).append('\n');
