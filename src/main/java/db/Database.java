@@ -13,12 +13,18 @@ public class Database {
 
     BasicDataSource dataSource;
 
-    public Database() {
+    public Database() throws SQLException {
         dataSource = new BasicDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
         dataSource.setUrl("jdbc:mysql://localhost:3306/java_database");
         dataSource.setUsername("www-data");
         dataSource.setPassword("technopark");
+        initDatabase();
+
+    }
+
+    private void initDatabase() throws SQLException {
+        this.execUpdate("CALL init_database");
     }
 
     @Override

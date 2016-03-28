@@ -54,7 +54,7 @@ public class Users {
         if (!RestApplication.validate(inUser))
             return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
 
-        UserProfile user = RestApplication.getAccountService().addUser(inUser.getLogin(), inUser);
+        UserProfile user = RestApplication.getAccountService().addUser(inUser);
         if (user != null) {
             RestApplication.getAccountService().login(sessionId, user);
             return Response.status(Response.Status.OK).entity(user.getJsonId()).build();

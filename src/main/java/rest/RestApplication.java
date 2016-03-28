@@ -1,6 +1,8 @@
 package rest;
 
 import main.AccountService;
+import main.AccountServiceDBImpl;
+import main.AccountServiceImpl;
 import main.Main;
 
 import javax.validation.ConstraintViolation;
@@ -36,7 +38,7 @@ public class RestApplication extends Application {
     }
 
     public static AccountService getAccountService() {
-        return (AccountService) Main.CONTEXT.get(AccountService.class);
+        return (AccountService) Main.CONTEXT.get(AccountServiceDBImpl.class);
     }
 
     @Override

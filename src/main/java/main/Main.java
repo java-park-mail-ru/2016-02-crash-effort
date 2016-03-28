@@ -29,7 +29,9 @@ public class Main {
             System.exit(1);
         }
 
-        CONTEXT.put(new AccountService());
+        AccountService accountService = new AccountServiceDBImpl();
+
+        CONTEXT.put(accountService);
 
         System.out.append("Starting at port: ").append(String.valueOf(port)).append('\n');
 

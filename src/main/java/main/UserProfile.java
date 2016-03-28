@@ -9,11 +9,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author esin88
  */
 public class UserProfile {
-    private static final AtomicLong ID_GENETATOR = new AtomicLong();
-
-    @Contract(pure = true)
-    public static long getLastId() { return ID_GENETATOR.get(); }
-
     @NotEmpty
     private String login;
     @NotEmpty
@@ -35,14 +30,14 @@ public class UserProfile {
         login = other.login;
         password = other.password;
         email = other.email;
-        id = ID_GENETATOR.getAndIncrement();
+        id = other.id;
     }
 
-    public UserProfile(@NotEmpty String login, @NotEmpty String password, @NotEmpty String email) {
+    public UserProfile(long id, @NotEmpty String login, @NotEmpty String password, @NotEmpty String email) {
         this.login = login;
         this.password = password;
         this.email = email;
-        this.id = ID_GENETATOR.getAndIncrement();
+        this.id = id;
     }
 
     @NotEmpty
