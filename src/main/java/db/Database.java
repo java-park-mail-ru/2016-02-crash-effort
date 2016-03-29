@@ -27,13 +27,6 @@ public class Database {
         this.execUpdate("CALL init_database");
     }
 
-    @Override
-    @SuppressWarnings("OverlyBroadThrowsClause")
-    protected void finalize() throws Throwable {
-        dataSource.close();
-        super.finalize();
-    }
-
     public void execQuery(String query, ResultHandler handler) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
             try (Statement stmt = connection.createStatement()) {
