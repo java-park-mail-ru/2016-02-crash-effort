@@ -1,4 +1,4 @@
-package test;
+package tests;
 
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 

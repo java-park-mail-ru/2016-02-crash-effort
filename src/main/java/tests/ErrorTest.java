@@ -1,4 +1,4 @@
-package test;
+package tests;
 
 import com.github.javafaker.Faker;
 import main.AccountService;
