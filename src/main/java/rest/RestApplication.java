@@ -37,10 +37,6 @@ public class RestApplication extends Application {
         return constraintViolations.isEmpty();
     }
 
-    public static AccountService getAccountService() {
-        return (AccountService) Main.CONTEXT.get(AccountServiceDBImpl.class);
-    }
-
     @Override
     public Set<Object> getSingletons() {
         final HashSet<Object> objects = new HashSet<>();

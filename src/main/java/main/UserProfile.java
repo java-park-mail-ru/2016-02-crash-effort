@@ -31,11 +31,11 @@ public class UserProfile {
         id = other.id;
     }
 
-    public UserProfile(long id, @NotEmpty String login, @NotEmpty String password, @NotEmpty String email) {
+    public UserProfile(@NotEmpty String login, @NotEmpty String password, @NotEmpty String email) {
         this.login = login;
         this.password = password;
         this.email = email;
-        this.id = id;
+        this.id = -1;
     }
 
     @NotEmpty

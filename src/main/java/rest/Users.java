@@ -1,9 +1,13 @@
 package rest;
 
+import main.AccountService;
+import main.AccountServiceDBImpl;
 import main.UserProfile;
 import org.jetbrains.annotations.Nullable;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -13,6 +17,8 @@ import javax.ws.rs.core.*;
  */
 @Singleton
 @Path("/user")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class Users {
 
     @Nullable
@@ -28,18 +34,17 @@ public class Users {
 
     @GET
     @Path("{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getUserById(@PathParam("id") String id, @Context HttpServletRequest request) {
+    public Response getUserById(@PathParam("id") String id, @Context HttpServletRequest request, @Context AccountService accountService) {
         final String sessionId = request.getSession().getId();
         final Long longId = parseId(id);
         if (longId == null)
             return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
 
-        final UserProfile user = RestApplication.getAccountService().getUser(longId);
+        final UserProfile user = accountService.getUser(longId);
         if (user == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
         }
-        else if (!RestApplication.getAccountService().isLoggedIn(sessionId)) {
+        else if (!accountService.isLoggedIn(sessionId)) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(RestApplication.EMPTY_JSON).build();
         } else {
             return Response.status(Response.Status.OK).entity(user.getJsonInfo()).build();
@@ -47,56 +52,51 @@ public class Users {
     }
 
     @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createUser(UserProfile inUser, @Context HttpServletRequest request) {
+    public Response createUser(UserProfile inUser, @Context HttpServletRequest request, @Context AccountService accountService) {
         final String sessionId = request.getSession().getId();
         if (!RestApplication.validate(inUser))
             return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
 
-        UserProfile user = RestApplication.getAccountService().addUser(inUser);
-        if (user != null && RestApplication.getAccountService().login(sessionId, user)) {
+        UserProfile user = accountService.addUser(inUser);
+        if (user != null && accountService.login(sessionId, user)) {
             return Response.status(Response.Status.OK).entity(user.getJsonId()).build();
         } else {
-            return Response.status(Response.Status.FORBIDDEN).entity(RestApplication.EMPTY_JSON).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
         }
     }
 
     @POST
     @Path("{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response editUserById(UserProfile inUser, @PathParam("id") String id, @Context HttpServletRequest request) {
+    public Response editUserById(UserProfile inUser, @PathParam("id") String id, @Context HttpServletRequest request, @Context AccountService accountService) {
         final String sessionId = request.getSession().getId();
         if (!RestApplication.validate(inUser))
             return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
 
-        UserProfile loggedInUser = RestApplication.getAccountService().getUserBySession(sessionId);
+        UserProfile loggedInUser = accountService.getUserBySession(sessionId);
         final Long longId = parseId(id);
         if (longId == null)
             return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
 
         if (loggedInUser != null && loggedInUser.getId() == longId &&
-                RestApplication.getAccountService().editUser(loggedInUser, inUser)) {
+                accountService.editUser(loggedInUser, inUser)) {
             return Response.status(Response.Status.OK).entity(loggedInUser.getJsonId()).build();
         } else {
-            return Response.status(Response.Status.FORBIDDEN).entity(RestApplication.EMPTY_JSON).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(RestApplication.EMPTY_JSON).build();
         }
     }
 
     @DELETE
     @Path("{id}")
-    @Produces(MediaType.APPLICATION_JSON)
     @SuppressWarnings("OverlyComplexBooleanExpression")
-    public Response deleteUserById(@PathParam("id") String id, @Context HttpServletRequest request) {
+    public Response deleteUserById(@PathParam("id") String id, @Context HttpServletRequest request, @Context AccountService accountService) {
         final String sessionId = request.getSession().getId();
-        UserProfile loggedInUser = RestApplication.getAccountService().getUserBySession(sessionId);
+        UserProfile loggedInUser = accountService.getUserBySession(sessionId);
         final Long longId = parseId(id);
         if (longId == null)
             return Response.status(Response.Status.BAD_REQUEST).entity(RestApplication.EMPTY_JSON).build();
 
         if (loggedInUser != null && loggedInUser.getId() == longId &&
-                RestApplication.getAccountService().logout(sessionId) &&
-                    RestApplication.getAccountService().deleteUser(longId)) {
+                accountService.logout(sessionId) && accountService.deleteUser(longId)) {
                 return Response.status(Response.Status.OK).entity(RestApplication.EMPTY_JSON).build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).entity(RestApplication.EMPTY_JSON).build();

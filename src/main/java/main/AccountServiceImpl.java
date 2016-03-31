@@ -13,10 +13,12 @@ public class AccountServiceImpl implements AccountService {
     private Map<String, UserProfile> loginToProfile = new ConcurrentHashMap<>();
 
     public AccountServiceImpl() {
-        UserProfile example1 = new UserProfile(0, "admin", "admin", "admin@admin.com");
-        UserProfile example2 = new UserProfile(1, "guest", "12345", "guest@guest.com");
-        idToProfile.put(0L, example1);
-        idToProfile.put(1L, example2);
+        UserProfile example1 = new UserProfile("admin", "admin", "admin@admin.com");
+        example1.setId(1);
+        UserProfile example2 = new UserProfile("guest", "12345", "guest@guest.com");
+        example2.setId(2);
+        idToProfile.put(1L, example1);
+        idToProfile.put(2L, example2);
         loginToProfile.put(example1.getLogin(), example1);
         loginToProfile.put(example2.getLogin(), example2);
     }

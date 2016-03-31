@@ -12,7 +12,7 @@ public class AccountServiceDBImpl implements AccountService {
     Database database;
     private static final int DUPLICATE_ENTRY = 1062;
 
-    AccountServiceDBImpl() throws SQLException {
+    public AccountServiceDBImpl() throws SQLException {
         database = new Database();
     }
 

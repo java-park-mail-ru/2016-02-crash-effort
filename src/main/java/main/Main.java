@@ -6,7 +6,11 @@ import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
+import rest.Session;
+import rest.Users;
 
 import java.sql.SQLException;
 
@@ -14,8 +18,6 @@ import java.sql.SQLException;
  * @author esin88
  */
 public class Main {
-
-    public static final Context CONTEXT = new Context();
 
     public static boolean isNumeric(String s) {
         return s.matches("\\d+");
@@ -31,6 +33,11 @@ public class Main {
             System.exit(1);
         }
 
+        System.out.append("Starting at port: ").append(String.valueOf(port)).append('\n');
+
+        final Server server = new Server(port);
+        final ServletContextHandler contextHandler = new ServletContextHandler(server, "/api/", ServletContextHandler.SESSIONS);
+
         AccountService accountService;
         try {
             accountService = new AccountServiceDBImpl();
@@ -38,15 +45,10 @@ public class Main {
             System.out.println(e.getMessage());
             return;
         }
-        CONTEXT.put(accountService);
 
-        System.out.append("Starting at port: ").append(String.valueOf(port)).append('\n');
-
-        final Server server = new Server(port);
-        final ServletContextHandler contextHandler = new ServletContextHandler(server, "/api/", ServletContextHandler.SESSIONS);
-
-        final ServletHolder servletHolder = new ServletHolder(ServletContainer.class);
-        servletHolder.setInitParameter("javax.ws.rs.Application", "rest.RestApplication");
+        final ResourceConfig config = new ResourceConfig(Session.class, Users.class);
+        config.register(new AccountServiceAbstractBinder(accountService));
+        final ServletHolder servletHolder = new ServletHolder(new ServletContainer(config));
 
         ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setDirectoriesListed(true);
