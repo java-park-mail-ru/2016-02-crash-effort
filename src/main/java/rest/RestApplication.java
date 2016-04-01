@@ -1,5 +1,10 @@
 package rest;
 
+import main.AccountService;
+import main.AccountServiceDBImpl;
+import main.AccountServiceImpl;
+import main.Main;
+
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
