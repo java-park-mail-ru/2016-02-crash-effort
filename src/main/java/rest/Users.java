@@ -1,13 +1,10 @@
 package rest;
 
 import main.AccountService;
-import main.AccountServiceDBImpl;
 import main.UserProfile;
 import org.jetbrains.annotations.Nullable;
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;

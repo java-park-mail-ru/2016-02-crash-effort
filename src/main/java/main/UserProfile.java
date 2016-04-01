@@ -1,17 +1,23 @@
 package main;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.json.JSONObject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  * @author esin88
  */
 public class UserProfile {
-    @NotEmpty
+    @NotNull
+    @Size(min=1)
     private String login;
-    @NotEmpty
+
+    @NotNull
+    @Size(min=1)
     private String password;
-    @NotEmpty
+
+    @NotNull
+    @Size(min=1)
     private String email;
 
     @SuppressWarnings("InstanceVariableNamingConvention") //name need for API
@@ -31,27 +37,24 @@ public class UserProfile {
         id = other.id;
     }
 
-    public UserProfile(@NotEmpty String login, @NotEmpty String password, @NotEmpty String email) {
+    public UserProfile(String login, String password, String email) {
         this.login = login;
         this.password = password;
         this.email = email;
         this.id = -1;
     }
 
-    @NotEmpty
     public String getLogin() { return login; }
 
-    public void setLogin(@NotEmpty String login) { this.login = login; }
+    public void setLogin(String login) { this.login = login; }
 
-    @NotEmpty
     public String getPassword() { return password; }
 
-    public void setPassword(@NotEmpty String password) { this.password = password; }
+    public void setPassword(String password) { this.password = password; }
 
-    @NotEmpty
     public String getEmail() { return email; }
 
-    public void setEmail(@NotEmpty String email) { this.email = email; }
+    public void setEmail(String email) { this.email = email; }
 
     public long getId() { return id; }
 

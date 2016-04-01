@@ -4,4 +4,4 @@ Mastodonts Mail Group (MMG)
 Для запуска выполняем команды в Maven:
 
 mvn clean install<br />
-mvn frontend:grunt<br />
+./backend.sh

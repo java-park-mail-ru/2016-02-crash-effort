@@ -1,7 +1,9 @@
 package tests;
 
 import com.github.javafaker.Faker;
-import main.*;
+import main.AccountService;
+import main.AccountServiceDBImpl;
+import main.Main.AccountServiceAbstractBinder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -26,8 +28,22 @@ import static org.mockito.Mockito.mock;
  */
 public class SuccessTest extends JerseyTest {
 
+    public static class ServletAbstractBinder extends AbstractBinder {
+        private final HttpServletRequest httpServletRequest;
+
+        ServletAbstractBinder(HttpServletRequest httpServletRequest) {
+            this.httpServletRequest = httpServletRequest;
+        }
+
+        @Override
+        protected void configure() {
+            bind(httpServletRequest).to(HttpServletRequest.class);
+        }
+    }
+
     Faker faker;
 
+    @SuppressWarnings("resource")
     @Override
     protected Application configure() {
         faker = new Faker();

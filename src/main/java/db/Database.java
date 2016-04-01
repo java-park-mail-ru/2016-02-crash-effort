@@ -9,7 +9,7 @@ import java.sql.Statement;
 /**
  * Created by vladislav on 18.03.16.
  */
-public class Database {
+public class Database implements AutoCloseable {
 
     BasicDataSource dataSource;
 
@@ -20,7 +20,6 @@ public class Database {
         dataSource.setUsername("www-data");
         dataSource.setPassword("technopark");
         initDatabase();
-
     }
 
     private void initDatabase() throws SQLException {
@@ -45,12 +44,15 @@ public class Database {
                 int res = -1;
 
                 try (ResultSet rs = stmt.getGeneratedKeys()) {
-                    if (rs.next())
-                        res = rs.getInt(1);
+                    if (rs.next()) { res = rs.getInt(1); }
                 }
                 return res;
             }
         }
     }
 
+    @Override
+    public void close() throws SQLException {
+        dataSource.close();
+    }
 }

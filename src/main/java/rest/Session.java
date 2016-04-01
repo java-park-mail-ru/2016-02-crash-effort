@@ -1,7 +1,6 @@
 package rest;
 
 import main.*;
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;

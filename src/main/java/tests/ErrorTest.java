@@ -2,7 +2,7 @@ package tests;
 
 import com.github.javafaker.Faker;
 import main.AccountService;
-import main.AccountServiceAbstractBinder;
+import main.Main.AccountServiceAbstractBinder;
 import main.AccountServiceDBImpl;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -18,6 +18,7 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
+import tests.SuccessTest.ServletAbstractBinder;
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.Mockito.mock;
 
@@ -25,9 +26,9 @@ import static org.mockito.Mockito.mock;
  * Created by vladislav on 31.03.16.
  */
 public class ErrorTest extends JerseyTest {
-
     Faker faker;
 
+    @SuppressWarnings("resource")
     @Override
     protected Application configure() {
         faker = new Faker();

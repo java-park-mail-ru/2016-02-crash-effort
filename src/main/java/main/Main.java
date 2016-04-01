@@ -11,7 +11,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import rest.Session;
 import rest.Users;
-
 import java.sql.SQLException;
 
 /**
@@ -19,48 +18,53 @@ import java.sql.SQLException;
  */
 public class Main {
 
-    public static boolean isNumeric(String s) {
-        return s.matches("\\d+");
+    public static class AccountServiceAbstractBinder extends AbstractBinder {
+        private final AccountService accountService;
+
+        public AccountServiceAbstractBinder(AccountService accountService) {
+            this.accountService = accountService;
+        }
+
+        @Override
+        protected void configure() {
+            bind(accountService).to(AccountService.class);
+        }
     }
 
     @SuppressWarnings("OverlyBroadThrowsClause")
     public static void main(String[] args) throws Exception {
         int port = -1;
-        if (args.length == 1 && isNumeric(args[0])) {
+        try {
             port = Integer.valueOf(args[0]);
-        } else {
-            System.err.println("Specify port");
+        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+            System.out.println("Specify port");
             System.exit(1);
         }
 
-        System.out.append("Starting at port: ").append(String.valueOf(port)).append('\n');
+        try (AccountServiceDBImpl accountService = new AccountServiceDBImpl()) {
+            System.out.append("Starting at port: ").append(String.valueOf(port)).append('\n');
 
-        final Server server = new Server(port);
-        final ServletContextHandler contextHandler = new ServletContextHandler(server, "/api/", ServletContextHandler.SESSIONS);
+            final Server server = new Server(port);
+            final ServletContextHandler contextHandler = new ServletContextHandler(server, "/api/", ServletContextHandler.SESSIONS);
+            final ResourceConfig config = new ResourceConfig(Session.class, Users.class);
+            config.register(new AccountServiceAbstractBinder(accountService));
+            final ServletHolder servletHolder = new ServletHolder(new ServletContainer(config));
+            contextHandler.addServlet(servletHolder, "/*");
 
-        AccountService accountService;
-        try {
-            accountService = new AccountServiceDBImpl();
-        } catch (SQLException e) {
+            final ResourceHandler resourceHandler = new ResourceHandler();
+            resourceHandler.setDirectoriesListed(true);
+            resourceHandler.setWelcomeFiles(new String[]{ "index.html" });
+            resourceHandler.setResourceBase("public_html");
+
+            final HandlerList handlers = new HandlerList();
+            handlers.setHandlers(new Handler[] { resourceHandler, contextHandler });
+            server.setHandler(handlers);
+
+            server.start();
+            server.join();
+        } catch (InterruptedException | SQLException e) {
             System.out.println(e.getMessage());
-            return;
+            System.exit(1);
         }
-
-        final ResourceConfig config = new ResourceConfig(Session.class, Users.class);
-        config.register(new AccountServiceAbstractBinder(accountService));
-        final ServletHolder servletHolder = new ServletHolder(new ServletContainer(config));
-
-        ResourceHandler resourceHandler = new ResourceHandler();
-        resourceHandler.setDirectoriesListed(true);
-        resourceHandler.setWelcomeFiles(new String[]{ "index.html" });
-        resourceHandler.setResourceBase("public_html");
-
-        HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[] { resourceHandler, contextHandler });
-        server.setHandler(handlers);
-
-        contextHandler.addServlet(servletHolder, "/*");
-        server.start();
-        server.join();
     }
 }

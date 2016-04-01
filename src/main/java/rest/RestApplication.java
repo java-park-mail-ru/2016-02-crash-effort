@@ -1,10 +1,5 @@
 package rest;
 
-import main.AccountService;
-import main.AccountServiceDBImpl;
-import main.AccountServiceImpl;
-import main.Main;
-
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -21,19 +16,21 @@ public class RestApplication extends Application {
     public static final String EMPTY_JSON = "{}";
     private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
-    public static boolean validate(Object object) {
-        Set<ConstraintViolation<Object>> constraintViolations = VALIDATOR.validate(object);
+    public static <T> boolean validate(T object) {
+        Set<ConstraintViolation<T>> constraintViolations = VALIDATOR.validate(object);
 
-        System.out.println(object);
-        System.out.println(String.format("Error count: %d", constraintViolations.size()));
+        int size = constraintViolations.size();
+        if (size > 0) {
+            System.out.println(object);
+            System.out.println(String.format("Error count: %d", size));
 
-        for (ConstraintViolation<Object> cv : constraintViolations)
-            System.out.println(String.format(
-                    "ERROR! property: [%s], value: [%s], message: [%s]",
-                    cv.getPropertyPath(), cv.getInvalidValue(), cv.getMessage()));
+            for (ConstraintViolation<T> cv : constraintViolations)
+                System.out.println(String.format(
+                        "ERROR! property: [%s], value: [%s], message: [%s]",
+                        cv.getPropertyPath(), cv.getInvalidValue(), cv.getMessage()));
 
-        System.out.println();
-
+            System.out.println();
+        }
         return constraintViolations.isEmpty();
     }
 
