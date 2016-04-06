@@ -8,12 +8,18 @@ import java.sql.SQLException;
 /**
  * Created by vladislav on 28.03.16.
  */
-public class AccountServiceDBImpl implements AccountService, AutoCloseable {
+public class AccountServiceDBImpl implements AccountService {
     Database database;
     private static final int DUPLICATE_ENTRY = 1062;
 
-    public AccountServiceDBImpl() throws SQLException {
+    @Override
+    public void initialize() throws SQLException {
         database = new Database();
+    }
+
+    @Override
+    public void close() throws SQLException {
+        database.close();
     }
 
     @Override
@@ -153,10 +159,5 @@ public class AccountServiceDBImpl implements AccountService, AutoCloseable {
             return null;
         }
         return userProfile;
-    }
-
-    @Override
-    public void close() throws SQLException {
-        database.close();
     }
 }

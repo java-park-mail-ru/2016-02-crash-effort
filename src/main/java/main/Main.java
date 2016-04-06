@@ -1,9 +1,6 @@
 package main;
 
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -41,30 +38,26 @@ public class Main {
             System.exit(1);
         }
 
-        try (AccountServiceDBImpl accountService = new AccountServiceDBImpl()) {
-            System.out.append("Starting at port: ").append(String.valueOf(port)).append('\n');
-
-            final Server server = new Server(port);
-            final ServletContextHandler contextHandler = new ServletContextHandler(server, "/api/", ServletContextHandler.SESSIONS);
-            final ResourceConfig config = new ResourceConfig(Session.class, Users.class);
-            config.register(new AccountServiceAbstractBinder(accountService));
-            final ServletHolder servletHolder = new ServletHolder(new ServletContainer(config));
-            contextHandler.addServlet(servletHolder, "/*");
-
-            final ResourceHandler resourceHandler = new ResourceHandler();
-            resourceHandler.setDirectoriesListed(true);
-            resourceHandler.setWelcomeFiles(new String[]{ "index.html" });
-            resourceHandler.setResourceBase("public_html");
-
-            final HandlerList handlers = new HandlerList();
-            handlers.setHandlers(new Handler[] { resourceHandler, contextHandler });
-            server.setHandler(handlers);
-
-            server.start();
-            server.join();
-        } catch (InterruptedException | SQLException e) {
+        AccountService accountService = new AccountServiceDBImpl();
+        try {
+            accountService.initialize();
+        } catch (SQLException e) {
+            System.out.println("DATABASE ERROR:");
             System.out.println(e.getMessage());
             System.exit(1);
         }
+
+        System.out.append("Starting at port: ").append(String.valueOf(port)).append('\n');
+
+        final Server server = new Server(port);
+        final ServletContextHandler contextHandler = new ServletContextHandler(server, "/api/", ServletContextHandler.SESSIONS);
+        final ResourceConfig config = new ResourceConfig(Session.class, Users.class);
+        config.register(new AccountServiceAbstractBinder(accountService));
+        final ServletHolder servletHolder = new ServletHolder(new ServletContainer(config));
+        contextHandler.addServlet(servletHolder, "/*");
+        server.setHandler(contextHandler);
+
+        server.start();
+        server.join();
     }
 }
