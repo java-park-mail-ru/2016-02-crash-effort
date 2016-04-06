@@ -1,7 +1,6 @@
 package tests;
 
 import com.github.javafaker.Faker;
-import main.AccountService;
 import main.Main.AccountServiceAbstractBinder;
 import main.AccountServiceDBImpl;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -32,9 +31,9 @@ public class ErrorTest extends JerseyTest {
     @Override
     protected Application configure() {
         faker = new Faker();
-        AccountService accountService;
+        AccountServiceDBImpl accountService = new AccountServiceDBImpl();
         try {
-            accountService = new AccountServiceDBImpl();
+            accountService.initialize();
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(1);

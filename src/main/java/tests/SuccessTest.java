@@ -1,7 +1,6 @@
 package tests;
 
 import com.github.javafaker.Faker;
-import main.AccountService;
 import main.AccountServiceDBImpl;
 import main.Main.AccountServiceAbstractBinder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -47,9 +46,9 @@ public class SuccessTest extends JerseyTest {
     @Override
     protected Application configure() {
         faker = new Faker();
-        AccountService accountService;
+        AccountServiceDBImpl accountService = new AccountServiceDBImpl();
         try {
-            accountService = new AccountServiceDBImpl();
+            accountService.initialize();
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(1);
