@@ -13,7 +13,7 @@ import java.sql.SQLException;
 /**
  * Created by vladislav on 06.04.16.
  */
-public class AccountServiceTest extends Assert {
+public class AccountServiceSuccessTest extends Assert {
 
     Faker faker;
     AccountServiceDBImpl accountService;
@@ -43,6 +43,7 @@ public class AccountServiceTest extends Assert {
     @Test
     public void testAddUser() {
         UserProfile userProfile = new UserProfile(faker.name().firstName(), faker.name().lastName(), faker.internet().emailAddress());
+        accountService.addUser(userProfile);
         assertNotNull(userProfile);
     }
 

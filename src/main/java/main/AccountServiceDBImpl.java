@@ -2,7 +2,6 @@ package main;
 
 import db.Database;
 import org.jetbrains.annotations.Nullable;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -113,7 +112,11 @@ public class AccountServiceDBImpl implements AccountService {
     @Override
     public boolean isLoggedIn(String hash) {
         try {
-            database.execQuery(String.format("SELECT * FROM Session_User WHERE session='%s'", hash), ResultSet::next);
+            database.execQuery(String.format("SELECT * FROM Session_User WHERE session='%s'", hash),
+                    result -> {
+                        if (!result.next())
+                            throw new SQLException();
+                    });
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             return false;
