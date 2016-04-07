@@ -1,29 +1,49 @@
 package main;
 
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
+import rest.Session;
+import rest.Users;
+import java.sql.SQLException;
 
 /**
  * @author esin88
  */
 public class Main {
 
-    public static boolean isNumeric(String s) {
-        return s.matches("\\d+");
+    public static class AccountServiceAbstractBinder extends AbstractBinder {
+        private final AccountService accountService;
+
+        public AccountServiceAbstractBinder(AccountService accountService) {
+            this.accountService = accountService;
+        }
+
+        @Override
+        protected void configure() {
+            bind(accountService).to(AccountService.class);
+        }
     }
 
     @SuppressWarnings("OverlyBroadThrowsClause")
     public static void main(String[] args) throws Exception {
         int port = -1;
-        if (args.length == 1 && isNumeric(args[0])) {
+        try {
             port = Integer.valueOf(args[0]);
-        } else {
-            System.err.println("Specify port");
+        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+            System.out.println("Specify port");
+            System.exit(1);
+        }
+
+        AccountService accountService = new AccountServiceDBImpl();
+        try {
+            accountService.initialize();
+        } catch (SQLException e) {
+            System.out.println("DATABASE ERROR:");
+            System.out.println(e.getMessage());
             System.exit(1);
         }
 
@@ -31,20 +51,12 @@ public class Main {
 
         final Server server = new Server(port);
         final ServletContextHandler contextHandler = new ServletContextHandler(server, "/api/", ServletContextHandler.SESSIONS);
-
-        final ServletHolder servletHolder = new ServletHolder(ServletContainer.class);
-        servletHolder.setInitParameter("javax.ws.rs.Application", "rest.RestApplication");
-
-        ResourceHandler resourceHandler = new ResourceHandler();
-        resourceHandler.setDirectoriesListed(true);
-        resourceHandler.setWelcomeFiles(new String[]{ "index.html" });
-        resourceHandler.setResourceBase("public_html");
-
-        HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[] { resourceHandler, contextHandler });
-        server.setHandler(handlers);
-
+        final ResourceConfig config = new ResourceConfig(Session.class, Users.class);
+        config.register(new AccountServiceAbstractBinder(accountService));
+        final ServletHolder servletHolder = new ServletHolder(new ServletContainer(config));
         contextHandler.addServlet(servletHolder, "/*");
+        server.setHandler(contextHandler);
+
         server.start();
         server.join();
     }
