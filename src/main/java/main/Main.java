@@ -79,8 +79,7 @@ public class Main {
         final ServletContextHandler contextHandler = new ServletContextHandler(server, "/api/", ServletContextHandler.SESSIONS);
         final ResourceConfig config = new ResourceConfig(Session.class, Users.class);
         config.register(new AccountServiceAbstractBinder(accountService));
-        final ServletHolder servletHolder = new ServletHolder(new ServletContainer(config));
-        contextHandler.addServlet(servletHolder, "/*");
+        contextHandler.addServlet(new ServletHolder(new ServletContainer(config)), "/*");
         server.setHandler(contextHandler);
 
         server.start();
