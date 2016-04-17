@@ -6,8 +6,9 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.sql.SQLException;
+import static main.Main.getProperty;
+import static main.Main.loadProperties;
 
 /**
  * Created by vladislav on 08.04.16.
@@ -18,9 +19,17 @@ public class AccountServiceErrorTest extends Assert {
 
     @Before
     public void setUp() {
+        if (!loadProperties())
+            System.exit(1);
+
         accountService = new AccountServiceDBImpl();
+        String dbName = getProperty("database");
+        String dbHost = getProperty("db_host");
+        int dbPort = Integer.valueOf(getProperty("db_port"));
+        String dbUsername = getProperty("db_username");
+        String dbPassword = getProperty("db_password");
         try {
-            accountService.initialize();
+            accountService.initialize(dbName, dbHost, dbPort, dbUsername, dbPassword);
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(1);

@@ -4,8 +4,6 @@ package main;
  * Created by vladislav on 28.03.16.
  */
 public interface AccountService {
-    void initialize() throws Exception;
-    void close() throws Exception;
     UserProfile addUser(UserProfile userProfile);
     UserProfile getUser(long id);
     boolean editUser(UserProfile user, UserProfile newData);

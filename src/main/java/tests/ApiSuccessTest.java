@@ -20,7 +20,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 import static junit.framework.TestCase.*;
+import static main.Main.loadProperties;
 import static org.mockito.Mockito.mock;
+import static main.Main.getProperty;
 
 /**
  * Created by vladislav on 30.03.16.
@@ -44,10 +46,20 @@ public class ApiSuccessTest extends JerseyTest {
 
     @Override
     protected Application configure() {
+        if (!loadProperties())
+            System.exit(1);
+
         faker = new Faker();
         AccountServiceDBImpl accountService = new AccountServiceDBImpl();
+
+        String dbName = getProperty("database");
+        String dbHost = getProperty("db_host");
+        int dbPort = Integer.valueOf(getProperty("db_port"));
+        String dbUsername = getProperty("db_username");
+        String dbPassword = getProperty("db_password");
+
         try {
-            accountService.initialize();
+            accountService.initialize(dbName, dbHost, dbPort, dbUsername, dbPassword);
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(1);

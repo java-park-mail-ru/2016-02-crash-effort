@@ -8,11 +8,13 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import rest.Session;
 import rest.Users;
-
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -54,19 +56,38 @@ public class Main {
         return !constraintViolations.isEmpty();
     }
 
+    private static final Properties PROPERTIES = new Properties();
+
+    public static String getProperty(String property) {
+        return PROPERTIES.getProperty(property);
+    }
+
+    @SuppressWarnings("OverlyBroadCatchBlock")
+    public static boolean loadProperties() {
+        try (final FileInputStream fis = new FileInputStream("cfg/server.properties")) {
+            PROPERTIES.load(fis);
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
     @SuppressWarnings("OverlyBroadThrowsClause")
     public static void main(String[] args) throws Exception {
-        int port = -1;
-        try {
-            port = Integer.valueOf(args[0]);
-        } catch (NumberFormatException | IndexOutOfBoundsException e) {
-            System.out.println("Specify port");
+        if (!loadProperties())
             System.exit(1);
-        }
 
-        AccountService accountService = new AccountServiceDBImpl();
+        int port = Integer.valueOf(getProperty("port"));
+        String dbName = getProperty("database");
+        String dbHost = getProperty("db_host");
+        int dbPort = Integer.valueOf(getProperty("db_port"));
+        String dbUsername = getProperty("db_username");
+        String dbPassword = getProperty("db_password");
+
+        AccountServiceDBImpl accountService = new AccountServiceDBImpl();
         try {
-            accountService.initialize();
+            accountService.initialize(dbName, dbHost, dbPort, dbUsername, dbPassword);
         } catch (SQLException e) {
             System.out.println("DATABASE ERROR:");
             System.out.println(e.getMessage());

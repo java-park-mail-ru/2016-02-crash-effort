@@ -11,12 +11,10 @@ public class AccountServiceDBImpl implements AccountService {
     Database database;
     private static final int DUPLICATE_ENTRY = 1062;
 
-    @Override
-    public void initialize() throws SQLException {
-        database = new Database();
+    public void initialize(String name, String host, int port, String username, String password) throws SQLException {
+        database = new Database(name, host, port, username, password);
     }
 
-    @Override
     public void close() throws SQLException {
         database.close();
     }

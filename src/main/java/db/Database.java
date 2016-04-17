@@ -13,12 +13,12 @@ public class Database implements AutoCloseable {
 
     final BasicDataSource dataSource;
 
-    public Database() throws SQLException {
+    public Database(String name, String host, int port, String username, String password) throws SQLException {
         dataSource = new BasicDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://localhost:3306/java_database");
-        dataSource.setUsername("www-data");
-        dataSource.setPassword("technopark");
+        dataSource.setUrl(String.format("jdbc:mysql://%s:%d/%s", host, port, name));
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
         initDatabase();
     }
 
