@@ -27,6 +27,7 @@ import static main.Main.getProperty;
 /**
  * Created by vladislav on 30.03.16.
  */
+@SuppressWarnings("unused")
 public class ApiSuccessTest extends JerseyTest {
 
     public static class ServletAbstractBinder extends AbstractBinder {

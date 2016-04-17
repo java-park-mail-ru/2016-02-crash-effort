@@ -26,6 +26,7 @@ import static main.Main.getProperty;
 /**
  * Created by vladislav on 31.03.16.
  */
+@SuppressWarnings("unused")
 public class ApiErrorTest extends JerseyTest {
     Faker faker;
 

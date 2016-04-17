@@ -5,6 +5,7 @@
       <entry_point TYPE="class" FQNAME="tests.AccountServiceErrorTest" />
       <entry_point TYPE="class" FQNAME="tests.AccountServiceSuccessTest" />
       <entry_point TYPE="class" FQNAME="tests.ApiErrorTest" />
+      <entry_point TYPE="class" FQNAME="tests.ApiSuccessTest" />
     </entry_points>
   </component>
   <component name="MavenProjectsManager">

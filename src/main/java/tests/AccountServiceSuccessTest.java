@@ -16,6 +16,7 @@ import static main.Main.loadProperties;
 /**
  * Created by vladislav on 06.04.16.
  */
+@SuppressWarnings("unused")
 public class AccountServiceSuccessTest extends Assert {
 
     Faker faker;
