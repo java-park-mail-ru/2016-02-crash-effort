@@ -8,12 +8,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import rest.Session;
 import rest.Users;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import java.sql.SQLException;
-import java.util.Set;
 
 /**
  * @author esin88
@@ -33,27 +28,6 @@ public class Main {
         }
     }
 
-    public static final String EMPTY_JSON = "{}";
-    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
-
-    public static <T> boolean isInvalid(T object) {
-        Set<ConstraintViolation<T>> constraintViolations = VALIDATOR.validate(object);
-
-        int size = constraintViolations.size();
-        if (size > 0) {
-            System.out.println(object);
-            System.out.println(String.format("Error count: %d", size));
-
-            for (ConstraintViolation<T> cv : constraintViolations)
-                System.out.println(String.format(
-                        "ERROR! property: [%s], value: [%s], message: [%s]",
-                        cv.getPropertyPath(), cv.getInvalidValue(), cv.getMessage()));
-
-            System.out.println();
-        }
-        return !constraintViolations.isEmpty();
-    }
-
     @SuppressWarnings("OverlyBroadThrowsClause")
     public static void main(String[] args) throws Exception {
         int port = -1;
@@ -64,7 +38,7 @@ public class Main {
             System.exit(1);
         }
 
-        AccountService accountService = new AccountServiceDBImpl();
+        final AccountService accountService = new AccountServiceDBImpl();
         try {
             accountService.initialize();
         } catch (SQLException e) {

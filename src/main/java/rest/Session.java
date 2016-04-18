@@ -18,11 +18,11 @@ public class Session {
     @GET
     public Response checkAuth(@Context HttpServletRequest request, @Context AccountService accountService) {
         final String sessionId = request.getSession().getId();
-        UserProfile user = accountService.getUserBySession(sessionId);
+        final UserProfile user = accountService.getUserBySession(sessionId);
         if (user != null) {
             return Response.status(Response.Status.OK).entity(user.getJsonId()).build();
         } else {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(Main.EMPTY_JSON).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(ValidationHelper.EMPTY_JSON).build();
         }
     }
 
@@ -30,23 +30,23 @@ public class Session {
     public Response loginUser(UserProfile inuser, @Context HttpServletRequest request, @Context AccountService accountService) {
         final String sessionId = request.getSession().getId();
 
-        UserProfile user = accountService.getUserByLogin(inuser.getLogin());
+        final UserProfile user = accountService.getUserByLogin(inuser.getLogin());
         if (user != null && inuser.getPassword().equals(user.getPassword()) &&
                 accountService.login(sessionId, user)) {
             return Response.status(Response.Status.OK).entity(user.getJsonId()).build();
         } else {
-            return Response.status(Response.Status.BAD_REQUEST).entity(Main.EMPTY_JSON).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(ValidationHelper.EMPTY_JSON).build();
         }
     }
 
     @DELETE
     public Response logoutUser(@Context HttpServletRequest request, @Context AccountService accountService) {
         final String sessionId = request.getSession().getId();
-        UserProfile user = accountService.getUserBySession(sessionId);
+        final UserProfile user = accountService.getUserBySession(sessionId);
         if (user != null && accountService.logout(sessionId)) {
-            return Response.status(Response.Status.OK).entity(Main.EMPTY_JSON).build();
+            return Response.status(Response.Status.OK).entity(ValidationHelper.EMPTY_JSON).build();
         } else {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(Main.EMPTY_JSON).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(ValidationHelper.EMPTY_JSON).build();
         }
     }
 }

@@ -30,7 +30,7 @@ public class Database implements AutoCloseable {
         try (Connection connection = dataSource.getConnection()) {
             try (Statement stmt = connection.createStatement()) {
                 stmt.execute(query);
-                ResultSet result = stmt.getResultSet();
+                final ResultSet result = stmt.getResultSet();
                 handler.handle(result);
                 result.close();
             }
