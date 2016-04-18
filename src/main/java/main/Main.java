@@ -8,14 +8,10 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import rest.Session;
 import rest.Users;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * @author esin88
@@ -33,27 +29,6 @@ public class Main {
         protected void configure() {
             bind(accountService).to(AccountService.class);
         }
-    }
-
-    public static final String EMPTY_JSON = "{}";
-    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
-
-    public static <T> boolean isInvalid(T object) {
-        Set<ConstraintViolation<T>> constraintViolations = VALIDATOR.validate(object);
-
-        int size = constraintViolations.size();
-        if (size > 0) {
-            System.out.println(object);
-            System.out.println(String.format("Error count: %d", size));
-
-            for (ConstraintViolation<T> cv : constraintViolations)
-                System.out.println(String.format(
-                        "ERROR! property: [%s], value: [%s], message: [%s]",
-                        cv.getPropertyPath(), cv.getInvalidValue(), cv.getMessage()));
-
-            System.out.println();
-        }
-        return !constraintViolations.isEmpty();
     }
 
     private static final Properties PROPERTIES = new Properties();
@@ -78,14 +53,15 @@ public class Main {
         if (!loadProperties())
             System.exit(1);
 
-        int port = Integer.valueOf(getProperty("port"));
-        String dbName = getProperty("database");
-        String dbHost = getProperty("db_host");
-        int dbPort = Integer.valueOf(getProperty("db_port"));
-        String dbUsername = getProperty("db_username");
-        String dbPassword = getProperty("db_password");
+        final int port = Integer.valueOf(getProperty("port"));
+        final String dbName = getProperty("database");
+        final String dbHost = getProperty("db_host");
+        final int dbPort = Integer.valueOf(getProperty("db_port"));
+        final String dbUsername = getProperty("db_username");
+        final String dbPassword = getProperty("db_password");
 
-        AccountServiceDBImpl accountService = new AccountServiceDBImpl();
+        final AccountServiceDBImpl accountService = new AccountServiceDBImpl();
+
         try {
             accountService.initialize(dbName, dbHost, dbPort, dbUsername, dbPassword);
         } catch (SQLException e) {

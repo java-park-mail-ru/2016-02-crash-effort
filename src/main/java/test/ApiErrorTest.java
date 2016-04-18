@@ -1,4 +1,4 @@
-package tests;
+package test;
 
 import com.github.javafaker.Faker;
 import main.Main.AccountServiceAbstractBinder;
@@ -17,7 +17,7 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
-import tests.ApiSuccessTest.ServletAbstractBinder;
+import test.ApiSuccessTest.ServletAbstractBinder;
 import static junit.framework.TestCase.assertEquals;
 import static main.Main.loadProperties;
 import static org.mockito.Mockito.mock;
@@ -33,16 +33,16 @@ public class ApiErrorTest extends JerseyTest {
     @Override
     protected Application configure() {
         faker = new Faker();
-
         if (!loadProperties())
             System.exit(1);
 
-        AccountServiceDBImpl accountService = new AccountServiceDBImpl();
-        String dbName = getProperty("database");
-        String dbHost = getProperty("db_host");
-        int dbPort = Integer.valueOf(getProperty("db_port"));
-        String dbUsername = getProperty("db_username");
-        String dbPassword = getProperty("db_password");
+        final AccountServiceDBImpl accountService = new AccountServiceDBImpl();
+        final String dbName = getProperty("database");
+        final String dbHost = getProperty("db_host");
+        final int dbPort = Integer.valueOf(getProperty("db_port"));
+        final String dbUsername = getProperty("db_username");
+        final String dbPassword = getProperty("db_password");
+
         try {
             accountService.initialize(dbName, dbHost, dbPort, dbUsername, dbPassword);
         } catch (SQLException e) {
@@ -54,7 +54,7 @@ public class ApiErrorTest extends JerseyTest {
         final ResourceConfig config = new ResourceConfig(Session.class, Users.class);
         config.register(new AccountServiceAbstractBinder(accountService));
         final HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
-        HttpSession httpSession = mock(HttpSession.class);
+        final HttpSession httpSession = mock(HttpSession.class);
         final String sessionId = faker.lorem().fixedString(15);
         Mockito.when(httpServletRequest.getSession()).thenReturn(httpSession);
         Mockito.when(httpSession.getId()).thenReturn(sessionId);
@@ -65,7 +65,7 @@ public class ApiErrorTest extends JerseyTest {
 
     @Test
     public void testErrorSignUp() {
-        JSONObject jsonObject = new JSONObject();
+        final JSONObject jsonObject = new JSONObject();
         jsonObject.put("login", "admin");
         jsonObject.put("password", "nimda");
         jsonObject.put("email", "ad@$.rw");
@@ -75,7 +75,7 @@ public class ApiErrorTest extends JerseyTest {
 
     @Test
     public void testErrorSighIn() {
-        JSONObject jsonObject = new JSONObject();
+        final JSONObject jsonObject = new JSONObject();
         jsonObject.put("login", "someuser");
         jsonObject.put("password", "nimda");
         final Response json = target("session").request(MediaType.APPLICATION_JSON).put(Entity.json(jsonObject.toString()));
@@ -90,7 +90,7 @@ public class ApiErrorTest extends JerseyTest {
 
     @Test
     public void testErrorChangeUserInfo() {
-        JSONObject jsonObject = new JSONObject();
+        final JSONObject jsonObject = new JSONObject();
         jsonObject.put("login", faker.name().firstName());
         jsonObject.put("password", faker.name().lastName());
         jsonObject.put("email", faker.internet().emailAddress());

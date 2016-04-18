@@ -23,7 +23,7 @@ public class AccountServiceDBImpl implements AccountService {
     @Nullable
     public UserProfile addUser(UserProfile userProfile) {
         try {
-            int id = database.execUpdate(String.format("INSERT INTO User (login, password, email) VALUES ('%s', '%s', '%s')",
+            final int id = database.execUpdate(String.format("INSERT INTO User (login, password, email) VALUES ('%s', '%s', '%s')",
                     userProfile.getLogin(), userProfile.getPassword(), userProfile.getEmail()));
             userProfile.setId(id);
         } catch (SQLException e) {

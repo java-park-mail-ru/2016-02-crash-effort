@@ -1,4 +1,4 @@
-package tests;
+package test;
 
 import main.AccountServiceDBImpl;
 import main.UserProfile;
@@ -24,11 +24,11 @@ public class AccountServiceErrorTest extends Assert {
             System.exit(1);
 
         accountService = new AccountServiceDBImpl();
-        String dbName = getProperty("database");
-        String dbHost = getProperty("db_host");
-        int dbPort = Integer.valueOf(getProperty("db_port"));
-        String dbUsername = getProperty("db_username");
-        String dbPassword = getProperty("db_password");
+        final String dbName = getProperty("database");
+        final String dbHost = getProperty("db_host");
+        final int dbPort = Integer.valueOf(getProperty("db_port"));
+        final String dbUsername = getProperty("db_username");
+        final String dbPassword = getProperty("db_password");
         try {
             accountService.initialize(dbName, dbHost, dbPort, dbUsername, dbPassword);
         } catch (SQLException e) {
@@ -49,28 +49,28 @@ public class AccountServiceErrorTest extends Assert {
 
     @Test
     public void testGetUser() {
-        long id = 0;
-        UserProfile userProfile = accountService.getUser(id);
+        final long id = 0;
+        final UserProfile userProfile = accountService.getUser(id);
         assertNull(userProfile);
     }
 
     @Test
     public void testLoggedIn() {
-        String hash = "12345";
+        final String hash = "12345";
         assertFalse(accountService.isLoggedIn(hash));
     }
 
     @Test
     public void testGetUserBySession() {
-        String hash = "12345";
-        UserProfile userProfile = accountService.getUserBySession(hash);
+        final String hash = "12345";
+        final UserProfile userProfile = accountService.getUserBySession(hash);
         assertNull(userProfile);
     }
 
     @Test
     public void testGetUserByLogin() {
-        String login = "$login$";
-        UserProfile userProfile = accountService.getUserByLogin(login);
+        final String login = "$login$";
+        final UserProfile userProfile = accountService.getUserByLogin(login);
         assertNull(userProfile);
     }
 }

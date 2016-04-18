@@ -1,4 +1,4 @@
-package tests;
+package test;
 
 import com.github.javafaker.Faker;
 import main.AccountServiceDBImpl;
@@ -29,11 +29,11 @@ public class AccountServiceSuccessTest extends Assert {
 
         faker = new Faker();
         accountService = new AccountServiceDBImpl();
-        String dbName = getProperty("database");
-        String dbHost = getProperty("db_host");
-        int dbPort = Integer.valueOf(getProperty("db_port"));
-        String dbUsername = getProperty("db_username");
-        String dbPassword = getProperty("db_password");
+        final String dbName = getProperty("database");
+        final String dbHost = getProperty("db_host");
+        final int dbPort = Integer.valueOf(getProperty("db_port"));
+        final String dbUsername = getProperty("db_username");
+        final String dbPassword = getProperty("db_password");
         try {
             accountService.initialize(dbName, dbHost, dbPort, dbUsername, dbPassword);
         } catch (SQLException e) {
@@ -54,15 +54,15 @@ public class AccountServiceSuccessTest extends Assert {
 
     @Test
     public void testAddUser() {
-        UserProfile userProfile = new UserProfile(faker.name().firstName(), faker.name().lastName(), faker.internet().emailAddress());
+        final UserProfile userProfile = new UserProfile(faker.name().firstName(), faker.name().lastName(), faker.internet().emailAddress());
         accountService.addUser(userProfile);
         assertNotNull(userProfile);
     }
 
     @Test
     public void testGetUser() {
-        long id = 1;
-        UserProfile userProfile = accountService.getUser(id);
+        final long id = 1;
+        final UserProfile userProfile = accountService.getUser(id);
         assertNotNull(userProfile);
         assertEquals("admin", userProfile.getLogin());
         assertEquals("admin", userProfile.getPassword());
@@ -70,8 +70,8 @@ public class AccountServiceSuccessTest extends Assert {
 
     @Test
     public void testEditUser() {
-        long id = 1;
-        UserProfile userProfile = accountService.getUser(id);
+        final long id = 1;
+        final UserProfile userProfile = accountService.getUser(id);
         assertNotNull(userProfile);
         UserProfile userProfile1 = new UserProfile("admin1", "admin1", "admin1@admin.com");
         assertTrue(accountService.editUser(userProfile, userProfile1));
@@ -81,38 +81,38 @@ public class AccountServiceSuccessTest extends Assert {
 
     @Test
     public void testDeleteUser() {
-        long id = 1;
+        final long id = 1;
         assertTrue(accountService.deleteUser(id));
     }
 
     @Test
     public void testLogin() {
-        long id = 1;
-        UserProfile userProfile = accountService.getUser(id);
+        final long id = 1;
+        final UserProfile userProfile = accountService.getUser(id);
         assertNotNull(userProfile);
-        String hash = "12345";
+        final String hash = "12345";
         assertTrue(accountService.login(hash, userProfile));
     }
 
     @Test
     public void testLogout() {
         testLogin();
-        String hash = "12345";
+        final String hash = "12345";
         assertTrue(accountService.logout(hash));
     }
 
     @Test
     public void testLoggedIn() {
         testLogin();
-        String hash = "12345";
+        final String hash = "12345";
         assertTrue(accountService.isLoggedIn(hash));
     }
 
     @Test
     public void testGetUserBySession() {
         testLogin();
-        String hash = "12345";
-        UserProfile userProfile = accountService.getUserBySession(hash);
+        final String hash = "12345";
+        final UserProfile userProfile = accountService.getUserBySession(hash);
         assertNotNull(userProfile);
         assertEquals("admin", userProfile.getLogin());
         assertEquals("admin", userProfile.getPassword());
@@ -121,8 +121,8 @@ public class AccountServiceSuccessTest extends Assert {
     @Test
     public void testGetUserByLogin() {
         testLogin();
-        String login = "admin";
-        UserProfile userProfile = accountService.getUserByLogin(login);
+        final String login = "admin";
+        final UserProfile userProfile = accountService.getUserByLogin(login);
         assertNotNull(userProfile);
         assertEquals(login, userProfile.getLogin());
         assertEquals(login, userProfile.getPassword());
