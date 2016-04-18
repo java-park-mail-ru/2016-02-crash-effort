@@ -11,7 +11,7 @@ import java.sql.Statement;
  */
 public class Database implements AutoCloseable {
 
-    BasicDataSource dataSource;
+    final BasicDataSource dataSource;
 
     public Database() throws SQLException {
         dataSource = new BasicDataSource();

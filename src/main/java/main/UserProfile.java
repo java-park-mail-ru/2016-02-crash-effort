@@ -30,6 +30,7 @@ public class UserProfile {
         id = -1;
     }
 
+    @SuppressWarnings("unused")
     public UserProfile(UserProfile other) {
         login = other.login;
         password = other.password;

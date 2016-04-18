@@ -2,6 +2,7 @@ package tests;
 
 import com.github.javafaker.Faker;
 import main.AccountServiceDBImpl;
+import main.Main;
 import main.Main.AccountServiceAbstractBinder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -9,7 +10,6 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.mockito.Mockito;
-import rest.RestApplication;
 import rest.Session;
 import rest.Users;
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.mock;
 /**
  * Created by vladislav on 30.03.16.
  */
-public class SuccessTest extends JerseyTest {
+public class ApiSuccessTest extends JerseyTest {
 
     public static class ServletAbstractBinder extends AbstractBinder {
         private final HttpServletRequest httpServletRequest;
@@ -42,7 +42,6 @@ public class SuccessTest extends JerseyTest {
 
     Faker faker;
 
-    @SuppressWarnings("resource")
     @Override
     protected Application configure() {
         faker = new Faker();
@@ -74,7 +73,7 @@ public class SuccessTest extends JerseyTest {
         jsonObject.put("password", faker.name().lastName());
         jsonObject.put("email", faker.internet().emailAddress());
         final String json = target("user").request(MediaType.APPLICATION_JSON).put(Entity.json(jsonObject.toString()), String.class);
-        assertFalse(json.equals(RestApplication.EMPTY_JSON));
+        assertFalse(json.equals(Main.EMPTY_JSON));
         assert(json.contains("id"));
     }
 
@@ -84,12 +83,12 @@ public class SuccessTest extends JerseyTest {
         jsonObject.put("login", "admin");
         jsonObject.put("password", "admin");
         final String json = target("session").request(MediaType.APPLICATION_JSON).put(Entity.json(jsonObject.toString()), String.class);
-        assertFalse(json.equals(RestApplication.EMPTY_JSON));
+        assertFalse(json.equals(Main.EMPTY_JSON));
         JSONObject id = new JSONObject(json);
         assert(id.has("id"));
 
         final String json1 = target("user").path(String.valueOf(id.getInt("id"))).request(MediaType.APPLICATION_JSON).get(String.class);
-        assertFalse(json1.equals(RestApplication.EMPTY_JSON));
+        assertFalse(json1.equals(Main.EMPTY_JSON));
         JSONObject jsonObject1 = new JSONObject(json1);
         assertEquals(jsonObject1.get("login"), "admin");
     }

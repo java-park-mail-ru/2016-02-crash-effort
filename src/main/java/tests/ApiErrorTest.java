@@ -17,17 +17,16 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
-import tests.SuccessTest.ServletAbstractBinder;
+import tests.ApiSuccessTest.ServletAbstractBinder;
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.Mockito.mock;
 
 /**
  * Created by vladislav on 31.03.16.
  */
-public class ErrorTest extends JerseyTest {
+public class ApiErrorTest extends JerseyTest {
     Faker faker;
 
-    @SuppressWarnings("resource")
     @Override
     protected Application configure() {
         faker = new Faker();
