@@ -1,4 +1,4 @@
-package tests;
+package test;
 
 import main.AccountServiceDBImpl;
 import main.UserProfile;
@@ -39,28 +39,28 @@ public class AccountServiceErrorTest extends Assert {
 
     @Test
     public void testGetUser() {
-        long id = 0;
-        UserProfile userProfile = accountService.getUser(id);
+        final long id = 0;
+        final UserProfile userProfile = accountService.getUser(id);
         assertNull(userProfile);
     }
 
     @Test
     public void testLoggedIn() {
-        String hash = "12345";
+        final String hash = "12345";
         assertFalse(accountService.isLoggedIn(hash));
     }
 
     @Test
     public void testGetUserBySession() {
-        String hash = "12345";
-        UserProfile userProfile = accountService.getUserBySession(hash);
+        final String hash = "12345";
+        final UserProfile userProfile = accountService.getUserBySession(hash);
         assertNull(userProfile);
     }
 
     @Test
     public void testGetUserByLogin() {
-        String login = "$login$";
-        UserProfile userProfile = accountService.getUserByLogin(login);
+        final String login = "$login$";
+        final UserProfile userProfile = accountService.getUserByLogin(login);
         assertNull(userProfile);
     }
 }

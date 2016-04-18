@@ -55,7 +55,7 @@ public class Users {
         if (Main.isInvalid(inUser))
             return Response.status(Response.Status.BAD_REQUEST).entity(Main.EMPTY_JSON).build();
 
-        UserProfile user = accountService.addUser(inUser);
+        final UserProfile user = accountService.addUser(inUser);
         if (user != null && accountService.login(sessionId, user)) {
             return Response.status(Response.Status.OK).entity(user.getJsonId()).build();
         } else {
@@ -70,7 +70,7 @@ public class Users {
         if (Main.isInvalid(inUser))
             return Response.status(Response.Status.BAD_REQUEST).entity(Main.EMPTY_JSON).build();
 
-        UserProfile loggedInUser = accountService.getUserBySession(sessionId);
+        final UserProfile loggedInUser = accountService.getUserBySession(sessionId);
         final Long longId = parseId(id);
         if (longId == null)
             return Response.status(Response.Status.BAD_REQUEST).entity(Main.EMPTY_JSON).build();
@@ -88,7 +88,7 @@ public class Users {
     @SuppressWarnings("OverlyComplexBooleanExpression")
     public Response deleteUserById(@PathParam("id") String id, @Context HttpServletRequest request, @Context AccountService accountService) {
         final String sessionId = request.getSession().getId();
-        UserProfile loggedInUser = accountService.getUserBySession(sessionId);
+        final UserProfile loggedInUser = accountService.getUserBySession(sessionId);
         final Long longId = parseId(id);
         if (longId == null)
             return Response.status(Response.Status.BAD_REQUEST).entity(Main.EMPTY_JSON).build();

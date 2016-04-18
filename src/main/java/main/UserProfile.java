@@ -62,13 +62,13 @@ public class UserProfile {
     public void setId(long userId) { this.id = userId; }
 
     public String getJsonId() {
-        JSONObject jsonObject = new JSONObject();
+        final JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", id);
         return jsonObject.toString();
     }
 
     public String getJsonInfo() {
-        JSONObject jsonObject = new JSONObject();
+        final JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", id);
         jsonObject.put("login", login);
         jsonObject.put("email", email);
@@ -77,7 +77,7 @@ public class UserProfile {
 
     @Override
     public String toString() {
-        JSONObject jsonObject = new JSONObject();
+        final JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", id);
         jsonObject.put("login", login);
         jsonObject.put("password", password);

@@ -37,9 +37,9 @@ public class Main {
     private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
     public static <T> boolean isInvalid(T object) {
-        Set<ConstraintViolation<T>> constraintViolations = VALIDATOR.validate(object);
+        final Set<ConstraintViolation<T>> constraintViolations = VALIDATOR.validate(object);
 
-        int size = constraintViolations.size();
+        final int size = constraintViolations.size();
         if (size > 0) {
             System.out.println(object);
             System.out.println(String.format("Error count: %d", size));
@@ -64,7 +64,7 @@ public class Main {
             System.exit(1);
         }
 
-        AccountService accountService = new AccountServiceDBImpl();
+        final AccountService accountService = new AccountServiceDBImpl();
         try {
             accountService.initialize();
         } catch (SQLException e) {

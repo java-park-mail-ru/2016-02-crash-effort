@@ -1,4 +1,4 @@
-package tests;
+package test;
 
 import com.github.javafaker.Faker;
 import main.AccountServiceDBImpl;
@@ -45,7 +45,7 @@ public class ApiSuccessTest extends JerseyTest {
     @Override
     protected Application configure() {
         faker = new Faker();
-        AccountServiceDBImpl accountService = new AccountServiceDBImpl();
+        final AccountServiceDBImpl accountService = new AccountServiceDBImpl();
         try {
             accountService.initialize();
         } catch (SQLException e) {
@@ -57,7 +57,7 @@ public class ApiSuccessTest extends JerseyTest {
         final ResourceConfig config = new ResourceConfig(Session.class, Users.class);
         config.register(new AccountServiceAbstractBinder(accountService));
         final HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
-        HttpSession httpSession = mock(HttpSession.class);
+        final HttpSession httpSession = mock(HttpSession.class);
         final String sessionId = faker.lorem().fixedString(15);
         Mockito.when(httpServletRequest.getSession()).thenReturn(httpSession);
         Mockito.when(httpSession.getId()).thenReturn(sessionId);
@@ -68,7 +68,7 @@ public class ApiSuccessTest extends JerseyTest {
 
     @Test
     public void testSignUp() {
-        JSONObject jsonObject = new JSONObject();
+        final JSONObject jsonObject = new JSONObject();
         jsonObject.put("login", faker.name().firstName());
         jsonObject.put("password", faker.name().lastName());
         jsonObject.put("email", faker.internet().emailAddress());
@@ -79,17 +79,17 @@ public class ApiSuccessTest extends JerseyTest {
 
     @Test
     public void testSignIn() {
-        JSONObject jsonObject = new JSONObject();
+        final JSONObject jsonObject = new JSONObject();
         jsonObject.put("login", "admin");
         jsonObject.put("password", "admin");
         final String json = target("session").request(MediaType.APPLICATION_JSON).put(Entity.json(jsonObject.toString()), String.class);
         assertFalse(json.equals(Main.EMPTY_JSON));
-        JSONObject id = new JSONObject(json);
+        final JSONObject id = new JSONObject(json);
         assert(id.has("id"));
 
         final String json1 = target("user").path(String.valueOf(id.getInt("id"))).request(MediaType.APPLICATION_JSON).get(String.class);
         assertFalse(json1.equals(Main.EMPTY_JSON));
-        JSONObject jsonObject1 = new JSONObject(json1);
+        final JSONObject jsonObject1 = new JSONObject(json1);
         assertEquals(jsonObject1.get("login"), "admin");
     }
 
@@ -103,13 +103,13 @@ public class ApiSuccessTest extends JerseyTest {
     @Test
     public void testEditUser() {
         testSignIn();
-        JSONObject jsonObject = new JSONObject();
+        final JSONObject jsonObject = new JSONObject();
         jsonObject.put("login", faker.name().firstName());
         jsonObject.put("password", faker.name().lastName());
         jsonObject.put("email", faker.internet().emailAddress());
         final String json = target("user").path("1").request(MediaType.APPLICATION_JSON).post(Entity.json(jsonObject.toString()), String.class);
         assert(json.contains("id") && json.contains("1"));
-        JSONObject jsonObject1 = new JSONObject();
+        final JSONObject jsonObject1 = new JSONObject();
         jsonObject1.put("login", "admin");
         jsonObject1.put("password", "admin");
         jsonObject1.put("email", "admin@admin.com");
