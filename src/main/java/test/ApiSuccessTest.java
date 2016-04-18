@@ -2,8 +2,8 @@ package test;
 
 import com.github.javafaker.Faker;
 import main.AccountServiceDBImpl;
-import main.Main;
 import main.Main.AccountServiceAbstractBinder;
+import main.ValidationHelper;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 /**
  * Created by vladislav on 30.03.16.
  */
+@SuppressWarnings("unused")
 public class ApiSuccessTest extends JerseyTest {
 
     public static class ServletAbstractBinder extends AbstractBinder {
@@ -73,7 +74,7 @@ public class ApiSuccessTest extends JerseyTest {
         jsonObject.put("password", faker.name().lastName());
         jsonObject.put("email", faker.internet().emailAddress());
         final String json = target("user").request(MediaType.APPLICATION_JSON).put(Entity.json(jsonObject.toString()), String.class);
-        assertFalse(json.equals(Main.EMPTY_JSON));
+        assertFalse(json.equals(ValidationHelper.EMPTY_JSON));
         assert(json.contains("id"));
     }
 
@@ -83,12 +84,12 @@ public class ApiSuccessTest extends JerseyTest {
         jsonObject.put("login", "admin");
         jsonObject.put("password", "admin");
         final String json = target("session").request(MediaType.APPLICATION_JSON).put(Entity.json(jsonObject.toString()), String.class);
-        assertFalse(json.equals(Main.EMPTY_JSON));
+        assertFalse(json.equals(ValidationHelper.EMPTY_JSON));
         final JSONObject id = new JSONObject(json);
         assert(id.has("id"));
 
         final String json1 = target("user").path(String.valueOf(id.getInt("id"))).request(MediaType.APPLICATION_JSON).get(String.class);
-        assertFalse(json1.equals(Main.EMPTY_JSON));
+        assertFalse(json1.equals(ValidationHelper.EMPTY_JSON));
         final JSONObject jsonObject1 = new JSONObject(json1);
         assertEquals(jsonObject1.get("login"), "admin");
     }

@@ -12,6 +12,7 @@ import java.sql.SQLException;
 /**
  * Created by vladislav on 08.04.16.
  */
+@SuppressWarnings("unused")
 public class AccountServiceErrorTest extends Assert {
 
     AccountServiceDBImpl accountService;
