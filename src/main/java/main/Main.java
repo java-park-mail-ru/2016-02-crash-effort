@@ -1,5 +1,7 @@
 package main;
 
+import mechanics.GameMechanics;
+import mechanics.GameMechanicsImpl;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -8,6 +10,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import rest.Session;
 import rest.Users;
+import websocket.GameWebSocketServlet;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -65,7 +68,16 @@ public class Main {
         try {
             accountService.initialize(dbName, dbHost, dbPort, dbUsername, dbPassword);
         } catch (SQLException e) {
-            System.out.println("DATABASE ERROR:");
+            System.out.println("Database error:");
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
+
+        final GameMechanics gameMechanics = new GameMechanicsImpl();
+        try {
+            gameMechanics.loadCards();
+        } catch (IOException e) {
+            System.out.println("Game Mechanics error:");
             System.out.println(e.getMessage());
             System.exit(1);
         }
@@ -77,6 +89,7 @@ public class Main {
         final ResourceConfig config = new ResourceConfig(Session.class, Users.class);
         config.register(new AccountServiceAbstractBinder(accountService));
         contextHandler.addServlet(new ServletHolder(new ServletContainer(config)), "/*");
+        contextHandler.addServlet(new ServletHolder(new GameWebSocketServlet(accountService, gameMechanics)), "/gameplay");
         server.setHandler(contextHandler);
 
         server.start();
