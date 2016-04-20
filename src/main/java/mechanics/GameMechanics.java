@@ -12,5 +12,4 @@ public interface GameMechanics {
     void unregisterUser(String userName);
     boolean isRegistered(String username);
     void onMessage(String username, String message);
-    void sendMessageToUser(String userName, String message);
 }

@@ -80,7 +80,6 @@ public class GameMechanicsImpl implements GameMechanics {
         }
     }
 
-    @Override
     public void sendMessageToUser(String userName, String message) {
         userToSocket.get(userName).sendMessage(message);
     }
@@ -133,6 +132,7 @@ public class GameMechanicsImpl implements GameMechanics {
             sendMessageToUser(vacantLobby.getSecondUser().getUsername(), jsonObject.toString());
 
             lobby.setAllWaiting();
+            endRound(lobby);
         }
         lobby.nextTurn();
     }
@@ -144,6 +144,24 @@ public class GameMechanicsImpl implements GameMechanics {
         for (int i = 0; i < inCards.length(); ++i) {
             final JSONObject card = cards.getJSONObject(inCards.getInt(i));
             gameUser.setRoundScores(gameUser.getRoundScores() + card.getInt("power"));
+        }
+    }
+
+    private void endRound(Lobby lobby) {
+        final int score = lobby.getFirstUser().getRoundScores() - lobby.getSecondUser().getRoundScores();
+
+        if (score > 0) {
+            lobby.getSecondUser().setHealth(lobby.getSecondUser().getHealth() - score);
+            if (lobby.getSecondUser().getHealth() < 1) {
+                sendWin(lobby.getFirstUser());
+                sendLose(lobby.getSecondUser());
+            }
+        } else {
+            lobby.getFirstUser().setHealth(lobby.getFirstUser().getHealth() - score);
+            if (lobby.getFirstUser().getHealth() < 1) {
+                sendWin(lobby.getSecondUser());
+                sendLose(lobby.getFirstUser());
+            }
         }
     }
 
@@ -165,5 +183,21 @@ public class GameMechanicsImpl implements GameMechanics {
 
         jsonObject.put("turn", false);
         sendMessageToUser(vacantLobby.getSecondUser().getUsername(), jsonObject.toString());
+    }
+
+    private void sendWin(GameUser user) {
+        final JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("command", "win");
+        sendMessageToUser(user.getUsername(), jsonObject.toString());
+        userToSocket.get(user.getUsername()).disconnect();
+    }
+
+    private void sendLose(GameUser user) {
+        final JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("command", "lose");
+        sendMessageToUser(user.getUsername(), jsonObject.toString());
+        userToSocket.get(user.getUsername()).disconnect();
     }
 }

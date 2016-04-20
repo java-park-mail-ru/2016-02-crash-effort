@@ -10,12 +10,10 @@ public class Lobby {
     private GameUser secondUser;
 
     boolean firstUserTurn;
-    boolean vacant;
 
     public Lobby(GameUser firstUser){
         this.firstUser = firstUser;
         firstUserTurn = true;
-        vacant = true;
     }
 
     public GameUser getFirstUser() {
@@ -24,7 +22,6 @@ public class Lobby {
 
     public void setSecondUser(GameUser secondUser) {
         this.secondUser = secondUser;
-        vacant = false;
     }
 
     public GameUser getSecondUser() {

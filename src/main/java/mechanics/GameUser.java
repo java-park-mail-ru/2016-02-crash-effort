@@ -49,6 +49,7 @@ public class GameUser {
         this.roundCards = roundCards;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isWaiting() {
         return waiting;
     }

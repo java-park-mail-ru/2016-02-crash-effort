@@ -1,5 +1,7 @@
 package main;
 
+import java.util.Map;
+
 /**
  * Created by vladislav on 28.03.16.
  */
@@ -13,4 +15,5 @@ public interface AccountService {
     boolean isLoggedIn(String hash);
     UserProfile getUserBySession(String hash);
     UserProfile getUserByLogin(String login);
+    Map<UserProfile, Integer> getScoreboard();
 }

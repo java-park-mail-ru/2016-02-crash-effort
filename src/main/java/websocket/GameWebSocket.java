@@ -25,6 +25,7 @@ public class GameWebSocket {
 
     private String username;
     private RemoteEndpoint remoteEndpoint;
+    private Session currentSession;
 
     GameWebSocket(String sessionId, AccountService accountService, GameMechanics gameMechanics) {
         this.accountService = accountService;
@@ -43,6 +44,7 @@ public class GameWebSocket {
     @SuppressWarnings("unused")
     @OnWebSocketConnect
     public void onConnect(Session session) {
+        currentSession = session;
         remoteEndpoint = session.getRemote();
         final UserProfile user = accountService.getUserBySession(sessionId);
         if (user == null) {
@@ -74,6 +76,8 @@ public class GameWebSocket {
         }
     }
 
-
+    public void disconnect() {
+        currentSession.close();
+    }
 
 }

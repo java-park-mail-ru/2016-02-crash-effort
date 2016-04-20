@@ -2,7 +2,11 @@ package main;
 
 import db.Database;
 import org.jetbrains.annotations.Nullable;
+
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by vladislav on 28.03.16.
@@ -41,10 +45,7 @@ public class AccountServiceDBImpl implements AccountService {
             database.execQuery(String.format("SELECT * FROM User WHERE id=%d", id),
                     result -> {
                         result.next();
-                        userProfile.setId(result.getLong("id"));
-                        userProfile.setLogin(result.getString("login"));
-                        userProfile.setPassword(result.getString("password"));
-                        userProfile.setEmail(result.getString("email"));
+                        resultToUserProfile(userProfile, result);
                     });
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -130,10 +131,7 @@ public class AccountServiceDBImpl implements AccountService {
             database.execQuery(String.format("SELECT u.* FROM User u JOIN Session_User su ON u.id=su.user WHERE session='%s'", hash),
                     result -> {
                         result.next();
-                        userProfile.setId(result.getLong("id"));
-                        userProfile.setLogin(result.getString("login"));
-                        userProfile.setPassword(result.getString("password"));
-                        userProfile.setEmail(result.getString("email"));
+                        resultToUserProfile(userProfile, result);
                     });
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -150,15 +148,39 @@ public class AccountServiceDBImpl implements AccountService {
             database.execQuery(String.format("SELECT * FROM User WHERE login='%s'", login),
                     result -> {
                         result.next();
-                        userProfile.setId(result.getLong("id"));
-                        userProfile.setLogin(result.getString("login"));
-                        userProfile.setPassword(result.getString("password"));
-                        userProfile.setEmail(result.getString("email"));
+                        resultToUserProfile(userProfile, result);
                     });
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             return null;
         }
         return userProfile;
+    }
+
+    @Nullable
+    @Override
+    public Map<UserProfile, Integer> getScoreboard() {
+        final Map<UserProfile, Integer> scoreboard = new HashMap<>();
+        try {
+            database.execQuery("SELECT * FROM User ORDER BY score DESC LIMIT 20",
+                    result -> {
+                        while (result.next()) {
+                            final UserProfile userProfile = new UserProfile();
+                            resultToUserProfile(userProfile, result);
+                            scoreboard.put(userProfile, result.getInt("score"));
+                        }
+                    });
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+        return scoreboard;
+    }
+
+    private void resultToUserProfile(UserProfile userProfile, ResultSet resultSet) throws SQLException {
+        userProfile.setId(resultSet.getLong("id"));
+        userProfile.setLogin(resultSet.getString("login"));
+        userProfile.setPassword(resultSet.getString("password"));
+        userProfile.setEmail(resultSet.getString("email"));
     }
 }
