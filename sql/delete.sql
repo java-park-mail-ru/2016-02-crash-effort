@@ -1,1 +1,1 @@
-DROP SCHEMA java_database;
+DROP SCHEMA IF EXISTS java_database;
