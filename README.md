@@ -6,3 +6,7 @@ Mastodonts Mail Group (MMG)
 mysql -u "username" -p < sql/database.sql <br />
 mvn clean install<br />
 ./backend.sh
+
+Для удаления базы данных:
+
+mysql -u "username" -p < sql/delete.sql
