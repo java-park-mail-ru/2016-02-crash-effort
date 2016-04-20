@@ -90,12 +90,14 @@ public class GameMechanicsImpl implements GameMechanics {
         jsonObject.put("command", "start");
         jsonObject.put("turn", false);
         jsonObject.put("health", vacantLobby.getSecondUser().getHealth());
+        jsonObject.put("enemyHealth", vacantLobby.getFirstUser().getHealth());
         final int cardsCount = 3;
         jsonObject.put("cards", getRandomCards(cardsCount));
         sendMessageToUser(vacantLobby.getSecondUser().getUsername(), jsonObject.toString());
 
         jsonObject.put("turn", true);
         jsonObject.put("health", vacantLobby.getFirstUser().getHealth());
+        jsonObject.put("enemyHealth", vacantLobby.getSecondUser().getHealth());
         jsonObject.put("cards", getRandomCards(cardsCount));
         sendMessageToUser(vacantLobby.getFirstUser().getUsername(), jsonObject.toString());
     }
@@ -115,24 +117,29 @@ public class GameMechanicsImpl implements GameMechanics {
         if (lobby.isFirstUserTurn()) {
             jsonObject.put("command", "nextTurn");
             jsonObject.put("turn", true);
+            jsonObject.put("cards", inCards.length());
             sendMessageToUser(vacantLobby.getSecondUser().getUsername(), jsonObject.toString());
 
             jsonObject.put("turn", false);
             jsonObject.put("newCards", getRandomCards(inCards.length()));
             sendMessageToUser(vacantLobby.getFirstUser().getUsername(), jsonObject.toString());
         } else if (lobby.isSecondUserTurn()) {
-            jsonObject.put("command", "endRound");
-            jsonObject.put("enemyCards", lobby.getSecondUser().getRoundCards());
-            jsonObject.put("enemyScore", lobby.getSecondUser().getRoundScores());
-            sendMessageToUser(vacantLobby.getFirstUser().getUsername(), jsonObject.toString());
+            final boolean endGame = endRound(lobby);
+            if (!endGame) {
+                jsonObject.put("command", "endRound");
+                jsonObject.put("enemyCards", lobby.getSecondUser().getRoundCards());
+                jsonObject.put("health", lobby.getFirstUser().getHealth());
+                jsonObject.put("enemyHealth", lobby.getSecondUser().getHealth());
+                sendMessageToUser(vacantLobby.getFirstUser().getUsername(), jsonObject.toString());
 
-            jsonObject.put("enemyCards", lobby.getFirstUser().getRoundCards());
-            jsonObject.put("enemyScore", lobby.getFirstUser().getRoundScores());
-            jsonObject.put("newCards", getRandomCards(inCards.length()));
-            sendMessageToUser(vacantLobby.getSecondUser().getUsername(), jsonObject.toString());
+                jsonObject.put("enemyCards", lobby.getFirstUser().getRoundCards());
+                jsonObject.put("health", lobby.getSecondUser().getHealth());
+                jsonObject.put("enemyHealth", lobby.getFirstUser().getHealth());
+                jsonObject.put("newCards", getRandomCards(inCards.length()));
+                sendMessageToUser(vacantLobby.getSecondUser().getUsername(), jsonObject.toString());
 
-            lobby.setAllWaiting();
-            endRound(lobby);
+                lobby.setAllWaiting();
+            }
         }
         lobby.nextTurn();
     }
@@ -147,7 +154,7 @@ public class GameMechanicsImpl implements GameMechanics {
         }
     }
 
-    private void endRound(Lobby lobby) {
+    private boolean endRound(Lobby lobby) {
         final int score = lobby.getFirstUser().getRoundScores() - lobby.getSecondUser().getRoundScores();
 
         if (score > 0) {
@@ -155,14 +162,17 @@ public class GameMechanicsImpl implements GameMechanics {
             if (lobby.getSecondUser().getHealth() < 1) {
                 sendWin(lobby.getFirstUser());
                 sendLose(lobby.getSecondUser());
+                return true;
             }
         } else {
             lobby.getFirstUser().setHealth(lobby.getFirstUser().getHealth() - score);
             if (lobby.getFirstUser().getHealth() < 1) {
                 sendWin(lobby.getSecondUser());
                 sendLose(lobby.getFirstUser());
+                return true;
             }
         }
+        return false;
     }
 
     private void nextRound(Lobby lobby, String username) {
@@ -170,7 +180,10 @@ public class GameMechanicsImpl implements GameMechanics {
         if (gameUser == null) return;
 
         gameUser.setWaiting(false);
-        if (!lobby.getFirstUser().isWaiting() && !lobby.getSecondUser().isWaiting())
+        final boolean firstWait = lobby.getFirstUser().isWaiting();
+        final boolean secondWait = lobby.getSecondUser().isWaiting();
+
+        if (!firstWait && !secondWait)
             sendNextRound();
     }
 

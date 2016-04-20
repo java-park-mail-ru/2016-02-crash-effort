@@ -41,7 +41,7 @@ public class Main {
         return PROPERTIES.getProperty(property);
     }
 
-    @SuppressWarnings({"OverlyBroadCatchBlock", "BooleanMethodIsAlwaysInverted"})
+    @SuppressWarnings({"OverlyBroadCatchBlock"})
     public static boolean loadProperties() {
         try (final FileInputStream fis = new FileInputStream("cfg/server.properties")) {
             PROPERTIES.load(fis);
@@ -54,7 +54,8 @@ public class Main {
 
     @SuppressWarnings("OverlyBroadThrowsClause")
     public static void main(String[] args) throws Exception {
-        if (!loadProperties())
+        final boolean loaded = loadProperties();
+        if (!loaded)
             System.exit(1);
 
         final int port = Integer.valueOf(getProperty("port"));
