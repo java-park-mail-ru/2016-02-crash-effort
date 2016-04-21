@@ -20,7 +20,8 @@ public class AccountServiceDBImpl implements AccountService {
     }
 
     public void close() throws SQLException {
-        database.close();
+        if (database != null)
+            database.close();
     }
 
     @Override
