@@ -45,7 +45,7 @@ public class Main {
     public static boolean loadProperties() {
         try (final FileInputStream fis = new FileInputStream("cfg/server.properties")) {
             PROPERTIES.load(fis);
-        } catch (IOException | NumberFormatException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
