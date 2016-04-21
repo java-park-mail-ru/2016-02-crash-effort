@@ -1,17 +1,17 @@
 package test;
 
 import com.github.javafaker.Faker;
+import main.AccountService;
 import main.AccountServiceDBImpl;
+import main.Configuration;
 import main.UserProfile;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
+import javax.ws.rs.NotFoundException;
+import java.io.IOException;
 import java.sql.SQLException;
-
-import static main.Main.getProperty;
-import static main.Main.loadProperties;
 
 /**
  * Created by vladislav on 06.04.16.
@@ -20,23 +20,35 @@ import static main.Main.loadProperties;
 public class AccountServiceSuccessTest extends Assert {
 
     Faker faker;
-    AccountServiceDBImpl accountService;
+    AccountService accountService;
+    private static final String CONFIG = "cfg/server.properties";
 
     @Before
     public void setUp() {
-        if (!loadProperties())
-            System.exit(1);
-
         faker = new Faker();
-        accountService = new AccountServiceDBImpl();
-        final String dbName = getProperty("database");
-        final String dbHost = getProperty("db_host");
-        final int dbPort = Integer.valueOf(getProperty("db_port"));
-        final String dbUsername = getProperty("db_username");
-        final String dbPassword = getProperty("db_password");
+
+        final String dbHost;
+        final int dbPort;
+        final String dbUsername;
+        final String dbPassword;
+
         try {
-            accountService.initialize(dbName, dbHost, dbPort, dbUsername, dbPassword);
-        } catch (SQLException e) {
+            final Configuration configuration = new Configuration(CONFIG);
+
+            dbHost = configuration.getString("db_host");
+            dbPort = configuration.getInt("db_port");
+            dbUsername = configuration.getString("db_username");
+            dbPassword = configuration.getString("db_password");
+        } catch (IOException | NotFoundException | NumberFormatException e) {
+            System.out.println("Properties error:");
+            System.out.println(e.getMessage());
+            System.exit(1);
+            return;
+        }
+
+        try {
+            accountService = new AccountServiceDBImpl(dbHost, dbPort, dbUsername, dbPassword);
+        } catch (SQLException | IOException e) {
             e.printStackTrace();
             System.exit(1);
         }
@@ -46,7 +58,7 @@ public class AccountServiceSuccessTest extends Assert {
     public void tearDown() {
         try {
             accountService.close();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }

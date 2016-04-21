@@ -12,10 +12,9 @@ import rest.Scoreboard;
 import rest.Session;
 import rest.Users;
 import websocket.GameWebSocketServlet;
-import java.io.FileInputStream;
+import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Properties;
 
 /**
  * @author esin88
@@ -36,53 +35,48 @@ public class Main {
     }
 
     private static final String CONFIG = "cfg/server.properties";
-    private static final Properties PROPERTIES = new Properties();
-
-    public static String getProperty(String property) {
-        return PROPERTIES.getProperty(property);
-    }
-
-    @SuppressWarnings({"OverlyBroadCatchBlock"})
-    public static boolean loadProperties() {
-        try (final FileInputStream fis = new FileInputStream(CONFIG)) {
-            PROPERTIES.load(fis);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
 
     @SuppressWarnings("OverlyBroadThrowsClause")
     public static void main(String[] args) throws Exception {
-        final boolean loaded = loadProperties();
-        if (!loaded)
-            System.exit(1);
-
-        final int port = Integer.valueOf(getProperty("port"));
-        final String dbName = getProperty("database");
-        final String dbHost = getProperty("db_host");
-        final int dbPort = Integer.valueOf(getProperty("db_port"));
-        final String dbUsername = getProperty("db_username");
-        final String dbPassword = getProperty("db_password");
-
-        final AccountServiceDBImpl accountService = new AccountServiceDBImpl();
+        final int port;
+        final String dbHost;
+        final int dbPort;
+        final String dbUsername;
+        final String dbPassword;
 
         try {
-            accountService.initialize(dbName, dbHost, dbPort, dbUsername, dbPassword);
-        } catch (SQLException e) {
+            final Configuration configuration = new Configuration(CONFIG);
+
+            port = configuration.getInt("port");
+            dbHost = configuration.getString("db_host");
+            dbPort = configuration.getInt("db_port");
+            dbUsername = configuration.getString("db_username");
+            dbPassword = configuration.getString("db_password");
+        } catch (IOException | NotFoundException | NumberFormatException e) {
+            System.out.println("Properties error:");
+            System.out.println(e.getMessage());
+            System.exit(1);
+            return;
+        }
+
+        final AccountService accountService;
+        try {
+            accountService = new AccountServiceDBImpl(dbHost, dbPort, dbUsername, dbPassword);
+        } catch (SQLException | IOException e) {
             System.out.println("Database error:");
             System.out.println(e.getMessage());
             System.exit(1);
+            return;
         }
 
-        final GameMechanics gameMechanics = new GameMechanicsImpl();
+        final GameMechanics gameMechanics;
         try {
-            gameMechanics.loadCards();
+            gameMechanics = new GameMechanicsImpl();
         } catch (IOException e) {
             System.out.println("Game Mechanics error:");
             System.out.println(e.getMessage());
             System.exit(1);
+            return;
         }
 
         System.out.append("Starting at port: ").append(String.valueOf(port)).append('\n');

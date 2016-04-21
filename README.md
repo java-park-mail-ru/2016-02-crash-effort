@@ -3,10 +3,6 @@ Mastodonts Mail Group (MMG)
 
 Для запуска выполняем команды:
 
-mysql -u "username" -p < sql/database.sql <br />
+mysql -u root -p < sql/createUser.sql <br />
 mvn clean install<br />
 ./backend.sh
-
-Для удаления базы данных:
-
-mysql -u "username" -p < sql/delete.sql

@@ -1,5 +1,6 @@
 package mechanics;
 
+import main.FileHelper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import websocket.GameWebSocket;
@@ -14,27 +15,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GameMechanicsImpl implements GameMechanics {
 
     private static final String CARDS = "cfg/cards.json";
-
     JSONArray cards;
 
     private final Map<String, Lobby> userToLobby = new ConcurrentHashMap<>();
     private final Map<String, GameWebSocket> userToSocket = new ConcurrentHashMap<>();
     Lobby vacantLobby;
 
-    @SuppressWarnings("OverlyBroadThrowsClause")
-    @Override
-    public void loadCards() throws IOException {
-        try(BufferedReader br = new BufferedReader(new FileReader(CARDS))) {
-            final StringBuilder sb = new StringBuilder();
-            String line = br.readLine();
-
-            while (line != null) {
-                sb.append(line);
-                sb.append(System.lineSeparator());
-                line = br.readLine();
-            }
-            cards = new JSONArray(sb.toString());
-        }
+    public GameMechanicsImpl() throws IOException {
+        cards = new JSONArray(FileHelper.readAllText(CARDS));
     }
 
     @Override

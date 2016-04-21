@@ -1,6 +1,7 @@
 package test;
 
 import com.github.javafaker.Faker;
+import main.Configuration;
 import main.Main.AccountServiceAbstractBinder;
 import main.AccountServiceDBImpl;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -12,16 +13,16 @@ import rest.Session;
 import rest.Users;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.sql.SQLException;
 import test.ApiSuccessTest.ServletAbstractBinder;
 import static junit.framework.TestCase.assertEquals;
-import static main.Main.loadProperties;
 import static org.mockito.Mockito.mock;
-import static main.Main.getProperty;
 
 /**
  * Created by vladislav on 31.03.16.
@@ -29,23 +30,35 @@ import static main.Main.getProperty;
 @SuppressWarnings("unused")
 public class ApiErrorTest extends JerseyTest {
     Faker faker;
+    private static final String CONFIG = "cfg/server.properties";
 
     @Override
     protected Application configure() {
         faker = new Faker();
-        if (!loadProperties())
-            System.exit(1);
 
-        final AccountServiceDBImpl accountService = new AccountServiceDBImpl();
-        final String dbName = getProperty("database");
-        final String dbHost = getProperty("db_host");
-        final int dbPort = Integer.valueOf(getProperty("db_port"));
-        final String dbUsername = getProperty("db_username");
-        final String dbPassword = getProperty("db_password");
+        final String dbHost;
+        final int dbPort;
+        final String dbUsername;
+        final String dbPassword;
 
         try {
-            accountService.initialize(dbName, dbHost, dbPort, dbUsername, dbPassword);
-        } catch (SQLException e) {
+            final Configuration configuration = new Configuration(CONFIG);
+
+            dbHost = configuration.getString("db_host");
+            dbPort = configuration.getInt("db_port");
+            dbUsername = configuration.getString("db_username");
+            dbPassword = configuration.getString("db_password");
+        } catch (IOException | NotFoundException | NumberFormatException e) {
+            System.out.println("Properties error:");
+            System.out.println(e.getMessage());
+            System.exit(1);
+            return null;
+        }
+
+        final AccountServiceDBImpl accountService;
+        try {
+            accountService = new AccountServiceDBImpl(dbHost, dbPort, dbUsername, dbPassword);
+        } catch (SQLException | IOException e) {
             e.printStackTrace();
             System.exit(1);
             return null;

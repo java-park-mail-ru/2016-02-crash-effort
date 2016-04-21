@@ -3,6 +3,7 @@ package main;
 import db.Database;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -15,13 +16,13 @@ public class AccountServiceDBImpl implements AccountService {
     Database database;
     private static final int DUPLICATE_ENTRY = 1062;
 
-    public void initialize(String name, String host, int port, String username, String password) throws SQLException {
-        database = new Database(name, host, port, username, password);
+    public AccountServiceDBImpl(String host, int port, String username, String password) throws SQLException, IOException {
+        database = new Database(host, port, username, password);
     }
 
+    @Override
     public void close() throws SQLException {
-        if (database != null)
-            database.close();
+        database.close();
     }
 
     @Override

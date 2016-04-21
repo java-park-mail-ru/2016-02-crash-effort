@@ -1,28 +1,32 @@
 package test;
 
 import com.github.javafaker.Faker;
+import main.AccountService;
 import main.AccountServiceDBImpl;
+import main.Configuration;
 import main.Main.AccountServiceAbstractBinder;
 import main.ValidationHelper;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.mockito.Mockito;
+import rest.Scoreboard;
 import rest.Session;
 import rest.Users;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.sql.SQLException;
 import static junit.framework.TestCase.*;
-import static main.Main.loadProperties;
 import static org.mockito.Mockito.mock;
-import static main.Main.getProperty;
 
 /**
  * Created by vladislav on 30.03.16.
@@ -44,30 +48,41 @@ public class ApiSuccessTest extends JerseyTest {
     }
 
     Faker faker;
+    private static final String CONFIG = "cfg/server.properties";
 
     @Override
     protected Application configure() {
-        if (!loadProperties())
-            System.exit(1);
-
         faker = new Faker();
-        final AccountServiceDBImpl accountService = new AccountServiceDBImpl();
 
-        final String dbName = getProperty("database");
-        final String dbHost = getProperty("db_host");
-        final int dbPort = Integer.valueOf(getProperty("db_port"));
-        final String dbUsername = getProperty("db_username");
-        final String dbPassword = getProperty("db_password");
+        final String dbHost;
+        final int dbPort;
+        final String dbUsername;
+        final String dbPassword;
 
         try {
-            accountService.initialize(dbName, dbHost, dbPort, dbUsername, dbPassword);
-        } catch (SQLException e) {
+            final Configuration configuration = new Configuration(CONFIG);
+
+            dbHost = configuration.getString("db_host");
+            dbPort = configuration.getInt("db_port");
+            dbUsername = configuration.getString("db_username");
+            dbPassword = configuration.getString("db_password");
+        } catch (IOException | NotFoundException | NumberFormatException e) {
+            System.out.println("Properties error:");
+            System.out.println(e.getMessage());
+            System.exit(1);
+            return null;
+        }
+
+        final AccountService accountService;
+        try {
+            accountService = new AccountServiceDBImpl(dbHost, dbPort, dbUsername, dbPassword);
+        } catch (SQLException | IOException e) {
             e.printStackTrace();
             System.exit(1);
             return null;
         }
 
-        final ResourceConfig config = new ResourceConfig(Session.class, Users.class);
+        final ResourceConfig config = new ResourceConfig(Session.class, Users.class, Scoreboard.class);
         config.register(new AccountServiceAbstractBinder(accountService));
         final HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
         final HttpSession httpSession = mock(HttpSession.class);
@@ -143,6 +158,13 @@ public class ApiSuccessTest extends JerseyTest {
         testSignIn();
         final Response json = target("user").path("1").request(MediaType.APPLICATION_JSON).delete();
         assertEquals(json.getStatus(), Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testScoreboard() {
+        final String json = target("scoreboard").request(MediaType.APPLICATION_JSON).get(String.class);
+        final JSONArray jsonArray = new JSONArray(json);
+        assertNotNull(jsonArray);
     }
 
 }
