@@ -118,11 +118,11 @@ public class GameMechanicsImpl implements GameMechanics {
             jsonObject.put("command", "nextTurn");
             jsonObject.put("turn", true);
             jsonObject.put("cards", inCards.length());
-            sendMessageToUser(vacantLobby.getSecondUser().getUsername(), jsonObject.toString());
+            sendMessageToUser(lobby.getSecondUser().getUsername(), jsonObject.toString());
 
             jsonObject.put("turn", false);
             jsonObject.put("newCards", getRandomCards(inCards.length()));
-            sendMessageToUser(vacantLobby.getFirstUser().getUsername(), jsonObject.toString());
+            sendMessageToUser(lobby.getFirstUser().getUsername(), jsonObject.toString());
         } else if (lobby.isSecondUserTurn()) {
             final boolean endGame = endRound(lobby);
             if (!endGame) {
@@ -130,13 +130,13 @@ public class GameMechanicsImpl implements GameMechanics {
                 jsonObject.put("enemyCards", lobby.getSecondUser().getRoundCards());
                 jsonObject.put("health", lobby.getFirstUser().getHealth());
                 jsonObject.put("enemyHealth", lobby.getSecondUser().getHealth());
-                sendMessageToUser(vacantLobby.getFirstUser().getUsername(), jsonObject.toString());
+                sendMessageToUser(lobby.getFirstUser().getUsername(), jsonObject.toString());
 
                 jsonObject.put("enemyCards", lobby.getFirstUser().getRoundCards());
                 jsonObject.put("health", lobby.getSecondUser().getHealth());
                 jsonObject.put("enemyHealth", lobby.getFirstUser().getHealth());
                 jsonObject.put("newCards", getRandomCards(inCards.length()));
-                sendMessageToUser(vacantLobby.getSecondUser().getUsername(), jsonObject.toString());
+                sendMessageToUser(lobby.getSecondUser().getUsername(), jsonObject.toString());
 
                 lobby.setAllWaiting();
             }
@@ -184,18 +184,18 @@ public class GameMechanicsImpl implements GameMechanics {
         final boolean secondWait = lobby.getSecondUser().isWaiting();
 
         if (!firstWait && !secondWait)
-            sendNextRound();
+            sendNextRound(lobby);
     }
 
-    private void sendNextRound() {
+    private void sendNextRound(Lobby lobby) {
         final JSONObject jsonObject = new JSONObject();
 
         jsonObject.put("command", "nextRound");
         jsonObject.put("turn", true);
-        sendMessageToUser(vacantLobby.getFirstUser().getUsername(), jsonObject.toString());
+        sendMessageToUser(lobby.getFirstUser().getUsername(), jsonObject.toString());
 
         jsonObject.put("turn", false);
-        sendMessageToUser(vacantLobby.getSecondUser().getUsername(), jsonObject.toString());
+        sendMessageToUser(lobby.getSecondUser().getUsername(), jsonObject.toString());
     }
 
     private void sendWin(GameUser user) {
