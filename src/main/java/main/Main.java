@@ -35,6 +35,7 @@ public class Main {
         }
     }
 
+    private static final String CONFIG = "cfg/server.properties";
     private static final Properties PROPERTIES = new Properties();
 
     public static String getProperty(String property) {
@@ -43,7 +44,7 @@ public class Main {
 
     @SuppressWarnings({"OverlyBroadCatchBlock"})
     public static boolean loadProperties() {
-        try (final FileInputStream fis = new FileInputStream("cfg/server.properties")) {
+        try (final FileInputStream fis = new FileInputStream(CONFIG)) {
             PROPERTIES.load(fis);
         } catch (IOException e) {
             e.printStackTrace();
