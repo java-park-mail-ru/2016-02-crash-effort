@@ -82,7 +82,7 @@ public class Main {
         System.out.append("Starting at port: ").append(String.valueOf(port)).append('\n');
 
         final Server server = new Server(port);
-        final ServletContextHandler contextHandler = new ServletContextHandler(server, "/api/", ServletContextHandler.SESSIONS);
+        final ServletContextHandler contextHandler = new ServletContextHandler(server, "/api", ServletContextHandler.SESSIONS);
         final ResourceConfig config = new ResourceConfig(Session.class, Users.class, Scoreboard.class);
         config.register(new AccountServiceAbstractBinder(accountService));
         contextHandler.addServlet(new ServletHolder(new ServletContainer(config)), "/*");

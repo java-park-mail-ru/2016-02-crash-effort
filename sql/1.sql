@@ -3,8 +3,7 @@ USE java_database;
 CREATE TABLE IF NOT EXISTS `Session_User` (
   `session` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `user` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`session`),
-  UNIQUE KEY `index2` (`session`,`user`)
+  PRIMARY KEY (`session`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 TRUNCATE Session_User;
 CREATE TABLE IF NOT EXISTS `User` (
