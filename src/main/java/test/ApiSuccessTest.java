@@ -18,7 +18,6 @@ import rest.Session;
 import rest.Users;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
@@ -54,19 +53,10 @@ public class ApiSuccessTest extends JerseyTest {
     protected Application configure() {
         faker = new Faker();
 
-        final String dbHost;
-        final int dbPort;
-        final String dbUsername;
-        final String dbPassword;
-
+        final Configuration configuration;
         try {
-            final Configuration configuration = new Configuration(CONFIG);
-
-            dbHost = configuration.getString("db_host");
-            dbPort = configuration.getInt("db_port");
-            dbUsername = configuration.getString("db_username");
-            dbPassword = configuration.getString("db_password");
-        } catch (IOException | NotFoundException | NumberFormatException e) {
+            configuration = new Configuration(CONFIG);
+        } catch (IOException | NumberFormatException e) {
             System.out.println("Properties error:");
             System.out.println(e.getMessage());
             System.exit(1);
@@ -75,7 +65,8 @@ public class ApiSuccessTest extends JerseyTest {
 
         final AccountService accountService;
         try {
-            accountService = new AccountServiceDBImpl(dbHost, dbPort, dbUsername, dbPassword);
+            accountService = new AccountServiceDBImpl(configuration.getDbName(), configuration.getDbHost(), configuration.getDbPort(),
+                    configuration.getDbUsername(), configuration.getDbPassword());
         } catch (SQLException | IOException e) {
             e.printStackTrace();
             System.exit(1);

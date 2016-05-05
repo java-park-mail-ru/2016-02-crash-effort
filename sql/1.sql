@@ -1,5 +1,3 @@
-CREATE SCHEMA IF NOT EXISTS `java_database` DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
-USE java_database;
 CREATE TABLE IF NOT EXISTS `Session_User` (
   `session` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `user` int(10) unsigned NOT NULL,

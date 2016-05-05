@@ -16,13 +16,8 @@ public class AccountServiceDBImpl implements AccountService {
     Database database;
     private static final int DUPLICATE_ENTRY = 1062;
 
-    public AccountServiceDBImpl(String host, int port, String username, String password) throws SQLException, IOException {
-        database = new Database(host, port, username, password);
-    }
-
-    @Override
-    public void close() throws SQLException {
-        database.close();
+    public AccountServiceDBImpl(String name, String host, int port, String username, String password) throws SQLException, IOException {
+        database = new Database(name, host, port, username, password);
     }
 
     @Override

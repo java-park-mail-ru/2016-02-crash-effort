@@ -1,6 +1,5 @@
 package main;
 
-import javax.ws.rs.NotFoundException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -10,25 +9,49 @@ import java.util.Properties;
  */
 public class Configuration {
 
-    private final Properties properties;
+    int port;
+    String dbHost;
+    int dbPort;
+    String dbUsername;
+    String dbPassword;
+    String dbName;
 
     @SuppressWarnings("OverlyBroadThrowsClause")
-    public Configuration(String filename) throws IOException {
-        properties = new Properties();
+    public Configuration(String filename) throws IOException, NumberFormatException {
+        final Properties properties = new Properties();
         try (final FileInputStream fis = new FileInputStream(filename)) {
             properties.load(fis);
         }
+
+        port = Integer.valueOf(properties.getProperty("port"));
+        dbHost = properties.getProperty("db_host");
+        dbPort = Integer.valueOf(properties.getProperty("db_port"));
+        dbUsername = properties.getProperty("db_username");
+        dbPassword = properties.getProperty("db_password");
+        dbName = properties.getProperty("db_name");
     }
 
-    public String getString(String key) throws NotFoundException {
-        if (!properties.containsKey(key))
-            throw new NotFoundException("Property not found: " + key);
-        return properties.getProperty(key);
+    public int getPort() {
+        return port;
     }
 
-    public int getInt(String key) throws NotFoundException, NumberFormatException {
-        if (!properties.containsKey(key))
-            throw new NotFoundException("Property not found: " + key);
-        return Integer.valueOf(properties.getProperty(key));
+    public String getDbHost() {
+        return dbHost;
+    }
+
+    public int getDbPort() {
+        return dbPort;
+    }
+
+    public String getDbUsername() {
+        return dbUsername;
+    }
+
+    public String getDbPassword() {
+        return dbPassword;
+    }
+
+    public String getDbName() {
+        return dbName;
     }
 }

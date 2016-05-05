@@ -17,10 +17,10 @@ public class Database implements AutoCloseable {
     private static final int VERSION = 2;
     final BasicDataSource dataSource;
 
-    public Database(String host, int port, String username, String password) throws SQLException, IOException {
+    public Database(String name, String host, int port, String username, String password) throws SQLException, IOException {
         dataSource = new BasicDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl(String.format("jdbc:mysql://%s:%d/?allowMultiQueries=true", host, port));
+        dataSource.setUrl(String.format("jdbc:mysql://%s:%d/%s?allowMultiQueries=true&useSSL=false", host, port, name));
         dataSource.setUsername(username);
         dataSource.setPassword(password);
         initDatabase();

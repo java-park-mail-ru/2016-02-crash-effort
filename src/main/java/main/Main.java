@@ -12,7 +12,6 @@ import rest.Scoreboard;
 import rest.Session;
 import rest.Users;
 import websocket.GameWebSocketServlet;
-import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -38,21 +37,11 @@ public class Main {
 
     @SuppressWarnings("OverlyBroadThrowsClause")
     public static void main(String[] args) throws Exception {
-        final int port;
-        final String dbHost;
-        final int dbPort;
-        final String dbUsername;
-        final String dbPassword;
-
+        final Configuration configuration;
         try {
-            final Configuration configuration = new Configuration(CONFIG);
+            configuration = new Configuration(CONFIG);
 
-            port = configuration.getInt("port");
-            dbHost = configuration.getString("db_host");
-            dbPort = configuration.getInt("db_port");
-            dbUsername = configuration.getString("db_username");
-            dbPassword = configuration.getString("db_password");
-        } catch (IOException | NotFoundException | NumberFormatException e) {
+        } catch (IOException | NumberFormatException e) {
             System.out.println("Properties error:");
             System.out.println(e.getMessage());
             System.exit(1);
@@ -61,7 +50,8 @@ public class Main {
 
         final AccountService accountService;
         try {
-            accountService = new AccountServiceDBImpl(dbHost, dbPort, dbUsername, dbPassword);
+            accountService = new AccountServiceDBImpl(configuration.getDbName(), configuration.getDbHost(), configuration.getDbPort(),
+                    configuration.getDbUsername(), configuration.getDbPassword());
         } catch (SQLException | IOException e) {
             System.out.println("Database error:");
             System.out.println(e.getMessage());
@@ -79,9 +69,9 @@ public class Main {
             return;
         }
 
-        System.out.append("Starting at port: ").append(String.valueOf(port)).append('\n');
+        System.out.append("Starting at port: ").append(String.valueOf(configuration.getPort())).append('\n');
 
-        final Server server = new Server(port);
+        final Server server = new Server(configuration.getPort());
         final ServletContextHandler contextHandler = new ServletContextHandler(server, "/api", ServletContextHandler.SESSIONS);
         final ResourceConfig config = new ResourceConfig(Session.class, Users.class, Scoreboard.class);
         config.register(new AccountServiceAbstractBinder(accountService));
@@ -91,7 +81,5 @@ public class Main {
 
         server.start();
         server.join();
-
-        accountService.close();
     }
 }

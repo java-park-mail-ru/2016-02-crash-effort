@@ -4,11 +4,10 @@ import main.AccountService;
 import main.AccountServiceDBImpl;
 import main.Configuration;
 import main.UserProfile;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import javax.ws.rs.NotFoundException;
+
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -23,39 +22,20 @@ public class AccountServiceErrorTest extends Assert {
 
     @Before
     public void setUp() {
-        final String dbHost;
-        final int dbPort;
-        final String dbUsername;
-        final String dbPassword;
-
+        final Configuration configuration;
         try {
-            final Configuration configuration = new Configuration(CONFIG);
-
-            dbHost = configuration.getString("db_host");
-            dbPort = configuration.getInt("db_port");
-            dbUsername = configuration.getString("db_username");
-            dbPassword = configuration.getString("db_password");
-        } catch (IOException | NotFoundException | NumberFormatException e) {
+            configuration = new Configuration(CONFIG);
+        } catch (IOException | NumberFormatException e) {
             System.out.println("Properties error:");
             System.out.println(e.getMessage());
             System.exit(1);
             return;
         }
 
-
         try {
-            accountService = new AccountServiceDBImpl(dbHost, dbPort, dbUsername, dbPassword);
+            accountService = new AccountServiceDBImpl(configuration.getDbName(), configuration.getDbHost(), configuration.getDbPort(),
+                    configuration.getDbUsername(), configuration.getDbPassword());
         } catch (SQLException | IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
-
-    @After
-    public void tearDown() {
-        try {
-            accountService.close();
-        } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
