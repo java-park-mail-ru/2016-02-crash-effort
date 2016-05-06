@@ -50,7 +50,7 @@ public class Main {
 
         final AccountService accountService;
         try {
-            accountService = new AccountServiceDBImpl(configuration.getDbName(), configuration.getDbHost(), configuration.getDbPort(),
+            accountService = new AccountServiceImpl(configuration.getDbName(), configuration.getDbHost(), configuration.getDbPort(),
                     configuration.getDbUsername(), configuration.getDbPassword());
         } catch (SQLException | IOException e) {
             System.out.println("Database error:");

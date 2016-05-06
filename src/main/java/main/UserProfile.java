@@ -7,6 +7,7 @@ import javax.validation.constraints.Size;
 /**
  * @author esin88
  */
+@SuppressWarnings("unused")
 public class UserProfile {
     @NotNull
     @Size(min=1)
@@ -19,6 +20,9 @@ public class UserProfile {
     @NotNull
     @Size(min=1)
     private String email;
+
+    @NotNull
+    private String imgData;
 
     private long userId;
 
@@ -55,6 +59,14 @@ public class UserProfile {
     public String getEmail() { return email; }
 
     public void setEmail(String email) { this.email = email; }
+
+    public String getImgData() {
+        return imgData;
+    }
+
+    public void setImgData(String imgData) {
+        this.imgData = imgData;
+    }
 
     public long getId() { return userId; }
 

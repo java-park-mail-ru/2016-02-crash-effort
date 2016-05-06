@@ -2,7 +2,7 @@ package test;
 
 import com.github.javafaker.Faker;
 import main.AccountService;
-import main.AccountServiceDBImpl;
+import main.AccountServiceImpl;
 import main.Configuration;
 import main.UserProfile;
 import org.junit.Assert;
@@ -36,7 +36,7 @@ public class AccountServiceSuccessTest extends Assert {
         }
 
         try {
-            accountService = new AccountServiceDBImpl(configuration.getDbName(), configuration.getDbHost(), configuration.getDbPort(),
+            accountService = new AccountServiceImpl(configuration.getDbName(), configuration.getDbHost(), configuration.getDbPort(),
                     configuration.getDbUsername(), configuration.getDbPassword());
         } catch (SQLException | IOException e) {
             e.printStackTrace();

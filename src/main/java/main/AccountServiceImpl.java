@@ -2,8 +2,8 @@ package main;
 
 import db.Database;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.IOException;
+import threading.ThreadConverter;
+import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -12,11 +12,11 @@ import java.util.Map;
 /**
  * Created by vladislav on 28.03.16.
  */
-public class AccountServiceDBImpl implements AccountService {
+public class AccountServiceImpl implements AccountService {
     Database database;
     private static final int DUPLICATE_ENTRY = 1062;
 
-    public AccountServiceDBImpl(String name, String host, int port, String username, String password) throws SQLException, IOException {
+    public AccountServiceImpl(String name, String host, int port, String username, String password) throws SQLException, IOException {
         database = new Database(name, host, port, username, password);
     }
 
@@ -24,6 +24,12 @@ public class AccountServiceDBImpl implements AccountService {
     @Nullable
     public UserProfile addUser(UserProfile userProfile) {
         try {
+            if (!userProfile.getImgData().isEmpty()) {
+                final String filename = String.format("avatars/%s.png", userProfile.getLogin());
+                final ThreadConverter threadConverter = new ThreadConverter(userProfile.getImgData(), filename);
+                threadConverter.start();
+            }
+
             final int id = database.execUpdate(String.format("INSERT INTO User (login, password, email) VALUES ('%s', '%s', '%s')",
                     userProfile.getLogin(), userProfile.getPassword(), userProfile.getEmail()));
             userProfile.setId(id);
