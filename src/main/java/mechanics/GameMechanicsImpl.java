@@ -44,6 +44,8 @@ public class GameMechanicsImpl implements GameMechanics {
     public void unregisterUser(String userName) {
         userToSocket.remove(userName);
         userToLobby.remove(userName);
+        if (vacantLobby.getUserbyName(userName) != null)
+            vacantLobby = null;
     }
 
     @Override

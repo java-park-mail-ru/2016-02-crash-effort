@@ -24,7 +24,6 @@ public class GameWebSocket {
     private final String sessionId;
 
     private String username;
-    private RemoteEndpoint remoteEndpoint;
     private Session currentSession;
 
     GameWebSocket(String sessionId, AccountService accountService, GameMechanics gameMechanics) {
@@ -45,7 +44,6 @@ public class GameWebSocket {
     @OnWebSocketConnect
     public void onConnect(Session session) {
         currentSession = session;
-        remoteEndpoint = session.getRemote();
         final UserProfile user = accountService.getUserBySession(sessionId);
         if (user == null) {
             session.close(Response.SC_FORBIDDEN, "Your access to this resource is denied");
@@ -70,7 +68,7 @@ public class GameWebSocket {
 
     public void sendMessage(String message) {
         try {
-            remoteEndpoint.sendString(message);
+            currentSession.getRemote().sendString(message);
         } catch (IOException e) {
             System.out.println("WebSocket error: " + e.getMessage());
         }
