@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GameMechanicsImpl implements GameMechanics {
 
     private static final String CARDS = "cfg/cards.json";
-    JSONArray cards;
+    private static JSONArray cards;
 
     private final Map<String, Lobby> userToLobby = new ConcurrentHashMap<>();
     private final Map<String, GameWebSocket> userToSocket = new ConcurrentHashMap<>();
@@ -90,7 +90,7 @@ public class GameMechanicsImpl implements GameMechanics {
         sendMessageToUser(vacantLobby.getFirstUser().getUsername(), jsonObject.toString());
     }
 
-    private JSONArray getRandomCards(int count) {
+    public static JSONArray getRandomCards(int count) {
         final JSONArray jsonArray = new JSONArray();
         final Random r = new Random(System.currentTimeMillis());
         for (int i = 0; i < count; ++i)
