@@ -4,7 +4,6 @@ import main.AccountService;
 import main.UserProfile;
 import mechanics.GameMechanics;
 import org.eclipse.jetty.server.Response;
-import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;

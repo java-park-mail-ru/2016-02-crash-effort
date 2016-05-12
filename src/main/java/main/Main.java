@@ -8,7 +8,6 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
-import rest.Gameplay;
 import rest.Scoreboard;
 import rest.Session;
 import rest.Users;
@@ -74,7 +73,7 @@ public class Main {
 
         final Server server = new Server(configuration.getPort());
         final ServletContextHandler contextHandler = new ServletContextHandler(server, "/api", ServletContextHandler.SESSIONS);
-        final ResourceConfig config = new ResourceConfig(Session.class, Users.class, Scoreboard.class, Gameplay.class);
+        final ResourceConfig config = new ResourceConfig(Session.class, Users.class, Scoreboard.class);
         config.register(new AccountServiceAbstractBinder(accountService));
         contextHandler.addServlet(new ServletHolder(new ServletContainer(config)), "/*");
         contextHandler.addServlet(new ServletHolder(new GameWebSocketServlet(accountService, gameMechanics)), "/gameplay");

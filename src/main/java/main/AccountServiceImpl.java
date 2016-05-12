@@ -14,7 +14,6 @@ import java.util.Map;
  */
 public class AccountServiceImpl implements AccountService {
     Database database;
-    private static final int DUPLICATE_ENTRY = 1062;
 
     public AccountServiceImpl(String name, String host, int port, String username, String password) throws SQLException, IOException {
         database = new Database(name, host, port, username, password);
@@ -83,19 +82,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public boolean login(String hash, UserProfile userProfile) {
         try {
-            database.execUpdate(String.format("INSERT INTO Session_User VALUES ('%s', %d)", hash, userProfile.getId()));
+            database.execUpdate(String.format("INSERT INTO Session_User VALUES ('%s', %d) ON DUPLICATE KEY UPDATE user=%2$d", hash, userProfile.getId()));
         } catch (SQLException e) {
-            if (e.getErrorCode() == DUPLICATE_ENTRY) {
-                try {
-                    database.execUpdate(String.format("UPDATE Session_User SET user=%d WHERE session='%s'", userProfile.getId(), hash));
-                } catch (SQLException e1) {
-                    System.out.println(e1.getMessage());
-                    return false;
-                }
-            } else {
-                System.out.println(e.getMessage());
-                return false;
-            }
+            System.out.println(e.getMessage());
+            return false;
         }
         return true;
     }
@@ -114,16 +104,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public boolean isLoggedIn(String hash) {
         try {
-            database.execQuery(String.format("SELECT * FROM Session_User WHERE session='%s'", hash),
-                    result -> {
-                        if (!result.next())
-                            throw new SQLException();
-                    });
+            return database.execQuery(String.format("SELECT 1 FROM Session_User WHERE session='%s'", hash), ResultSet::next);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             return false;
         }
-        return true;
     }
 
     @Override
