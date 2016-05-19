@@ -1,12 +1,14 @@
 package test;
 
-import main.AccountServiceDBImpl;
+import main.AccountService;
+import main.AccountServiceImpl;
+import main.Configuration;
 import main.UserProfile;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 /**
@@ -15,24 +17,25 @@ import java.sql.SQLException;
 @SuppressWarnings("unused")
 public class AccountServiceErrorTest extends Assert {
 
-    AccountServiceDBImpl accountService;
+    AccountService accountService;
+    private static final String CONFIG = "cfg/server.properties";
 
     @Before
     public void setUp() {
-        accountService = new AccountServiceDBImpl();
+        final Configuration configuration;
         try {
-            accountService.initialize();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            configuration = new Configuration(CONFIG);
+        } catch (IOException | NumberFormatException e) {
+            System.out.println("Properties error:");
+            System.out.println(e.getMessage());
             System.exit(1);
+            return;
         }
-    }
 
-    @After
-    public void tearDown() {
         try {
-            accountService.close();
-        } catch (SQLException e) {
+            accountService = new AccountServiceImpl(configuration.getDbName(), configuration.getDbHost(), configuration.getDbPort(),
+                    configuration.getDbUsername(), configuration.getDbPassword());
+        } catch (SQLException | IOException e) {
             e.printStackTrace();
             System.exit(1);
         }

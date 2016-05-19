@@ -1,8 +1,9 @@
 package test;
 
 import com.github.javafaker.Faker;
+import main.Configuration;
 import main.Main.AccountServiceAbstractBinder;
-import main.AccountServiceDBImpl;
+import main.AccountServiceImpl;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.json.JSONObject;
@@ -16,6 +17,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.sql.SQLException;
 import test.ApiSuccessTest.ServletAbstractBinder;
 import static junit.framework.TestCase.assertEquals;
@@ -27,14 +29,27 @@ import static org.mockito.Mockito.mock;
 @SuppressWarnings("unused")
 public class ApiErrorTest extends JerseyTest {
     Faker faker;
+    private static final String CONFIG = "cfg/server.properties";
 
     @Override
     protected Application configure() {
         faker = new Faker();
-        final AccountServiceDBImpl accountService = new AccountServiceDBImpl();
+
+        final Configuration configuration;
         try {
-            accountService.initialize();
-        } catch (SQLException e) {
+            configuration = new Configuration(CONFIG);
+        } catch (IOException | NumberFormatException e) {
+            System.out.println("Properties error:");
+            System.out.println(e.getMessage());
+            System.exit(1);
+            return null;
+        }
+
+        final AccountServiceImpl accountService;
+        try {
+            accountService = new AccountServiceImpl(configuration.getDbName(), configuration.getDbHost(), configuration.getDbPort(),
+                    configuration.getDbUsername(), configuration.getDbPassword());
+        } catch (SQLException | IOException e) {
             e.printStackTrace();
             System.exit(1);
             return null;

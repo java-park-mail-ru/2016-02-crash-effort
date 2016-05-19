@@ -1,0 +1,1 @@
+GRANT SELECT, INSERT, UPDATE, DELETE, EXECUTE, CREATE, ALTER, DROP ON java_database.* TO 'www-data'@'localhost' IDENTIFIED BY 'technopark';

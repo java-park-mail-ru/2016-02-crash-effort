@@ -1,6 +1,9 @@
 package db;
 
+import main.FileHelper;
 import org.apache.commons.dbcp2.BasicDataSource;
+
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,28 +14,60 @@ import java.sql.Statement;
  */
 public class Database implements AutoCloseable {
 
+    private static final int VERSION = 2;
     final BasicDataSource dataSource;
 
-    public Database() throws SQLException {
+    public Database(String name, String host, int port, String username, String password) throws SQLException, IOException {
         dataSource = new BasicDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://localhost:3306/java_database");
-        dataSource.setUsername("www-data");
-        dataSource.setPassword("technopark");
+        dataSource.setUrl(String.format("jdbc:mysql://%s:%d/%s?allowMultiQueries=true&useSSL=false", host, port, name));
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
         initDatabase();
     }
 
-    private void initDatabase() throws SQLException {
-        this.execUpdate("CALL init_database");
+    private void initDatabase() throws SQLException, IOException {
+        execUpdate(getSQLScript(1));
+
+        final String queryVersion = "SELECT version FROM Version";
+        final int dbVersion = execQuery(queryVersion,
+                result -> {
+                    result.next();
+                    return result.getInt("version");
+                });
+        updateDatabase(dbVersion);
+    }
+
+    private void updateDatabase(int dbVersion) throws SQLException, IOException {
+        for (int i = dbVersion + 1; i <= VERSION; ++i) {
+            execUpdate(getSQLScript(i));
+            execUpdate(String.format("UPDATE Version SET version=%d", i));
+            System.out.printf("Database updated to version %d\n", i);
+        }
+    }
+
+    private String getSQLScript(int num) throws IOException {
+        return FileHelper.readAllText(String.format("sql/%d.sql", num));
     }
 
     public void execQuery(String query, ResultHandler handler) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
             try (Statement stmt = connection.createStatement()) {
                 stmt.execute(query);
-                final ResultSet result = stmt.getResultSet();
-                handler.handle(result);
-                result.close();
+                try (ResultSet result = stmt.getResultSet()) {
+                    handler.handle(result);
+                }
+            }
+        }
+    }
+
+    public <T> T execQuery(String query, TResultHandler<T> handler) throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            try (Statement stmt = connection.createStatement()) {
+                stmt.execute(query);
+                try (ResultSet result = stmt.getResultSet()) {
+                    return handler.handle(result);
+                }
             }
         }
     }
@@ -40,11 +75,10 @@ public class Database implements AutoCloseable {
     public int execUpdate(String update) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
             try (Statement stmt = connection.createStatement()) {
-                stmt.executeUpdate(update, Statement.RETURN_GENERATED_KEYS);
-                int res = -1;
+                int res = stmt.executeUpdate(update, Statement.RETURN_GENERATED_KEYS);
 
-                try (ResultSet rs = stmt.getGeneratedKeys()) {
-                    if (rs.next()) { res = rs.getInt(1); }
+                try (ResultSet result = stmt.getGeneratedKeys()) {
+                    if (result.next()) { res = result.getInt(1); }
                 }
                 return res;
             }

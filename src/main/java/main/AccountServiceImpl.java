@@ -2,29 +2,33 @@ package main;
 
 import db.Database;
 import org.jetbrains.annotations.Nullable;
+import threading.ThreadConverter;
+import java.io.*;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by vladislav on 28.03.16.
  */
-public class AccountServiceDBImpl implements AccountService {
+public class AccountServiceImpl implements AccountService {
     Database database;
-    private static final int DUPLICATE_ENTRY = 1062;
 
-    @Override
-    public void initialize() throws SQLException {
-        database = new Database();
-    }
-
-    @Override
-    public void close() throws SQLException {
-        database.close();
+    public AccountServiceImpl(String name, String host, int port, String username, String password) throws SQLException, IOException {
+        database = new Database(name, host, port, username, password);
     }
 
     @Override
     @Nullable
     public UserProfile addUser(UserProfile userProfile) {
         try {
+            if (!userProfile.getImgData().isEmpty()) {
+                final String filename = String.format("avatars/%s.png", userProfile.getLogin());
+                final ThreadConverter threadConverter = new ThreadConverter(userProfile.getImgData(), filename);
+                threadConverter.start();
+            }
+
             final int id = database.execUpdate(String.format("INSERT INTO User (login, password, email) VALUES ('%s', '%s', '%s')",
                     userProfile.getLogin(), userProfile.getPassword(), userProfile.getEmail()));
             userProfile.setId(id);
@@ -43,10 +47,7 @@ public class AccountServiceDBImpl implements AccountService {
             database.execQuery(String.format("SELECT * FROM User WHERE id=%d", id),
                     result -> {
                         result.next();
-                        userProfile.setId(result.getLong("id"));
-                        userProfile.setLogin(result.getString("login"));
-                        userProfile.setPassword(result.getString("password"));
-                        userProfile.setEmail(result.getString("email"));
+                        resultToUserProfile(userProfile, result);
                     });
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -81,19 +82,10 @@ public class AccountServiceDBImpl implements AccountService {
     @Override
     public boolean login(String hash, UserProfile userProfile) {
         try {
-            database.execUpdate(String.format("INSERT INTO Session_User VALUES ('%s', %d)", hash, userProfile.getId()));
+            database.execUpdate(String.format("INSERT INTO Session_User VALUES ('%s', %d) ON DUPLICATE KEY UPDATE user=%2$d", hash, userProfile.getId()));
         } catch (SQLException e) {
-            if (e.getErrorCode() == DUPLICATE_ENTRY) {
-                try {
-                    database.execUpdate(String.format("UPDATE Session_User SET user=%d WHERE session='%s'", userProfile.getId(), hash));
-                } catch (SQLException e1) {
-                    System.out.println(e1.getMessage());
-                    return false;
-                }
-            } else {
-                System.out.println(e.getMessage());
-                return false;
-            }
+            System.out.println(e.getMessage());
+            return false;
         }
         return true;
     }
@@ -112,16 +104,11 @@ public class AccountServiceDBImpl implements AccountService {
     @Override
     public boolean isLoggedIn(String hash) {
         try {
-            database.execQuery(String.format("SELECT * FROM Session_User WHERE session='%s'", hash),
-                    result -> {
-                        if (!result.next())
-                            throw new SQLException();
-                    });
+            return database.execQuery(String.format("SELECT 1 FROM Session_User WHERE session='%s'", hash), ResultSet::next);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             return false;
         }
-        return true;
     }
 
     @Override
@@ -132,10 +119,7 @@ public class AccountServiceDBImpl implements AccountService {
             database.execQuery(String.format("SELECT u.* FROM User u JOIN Session_User su ON u.id=su.user WHERE session='%s'", hash),
                     result -> {
                         result.next();
-                        userProfile.setId(result.getLong("id"));
-                        userProfile.setLogin(result.getString("login"));
-                        userProfile.setPassword(result.getString("password"));
-                        userProfile.setEmail(result.getString("email"));
+                        resultToUserProfile(userProfile, result);
                     });
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -152,15 +136,39 @@ public class AccountServiceDBImpl implements AccountService {
             database.execQuery(String.format("SELECT * FROM User WHERE login='%s'", login),
                     result -> {
                         result.next();
-                        userProfile.setId(result.getLong("id"));
-                        userProfile.setLogin(result.getString("login"));
-                        userProfile.setPassword(result.getString("password"));
-                        userProfile.setEmail(result.getString("email"));
+                        resultToUserProfile(userProfile, result);
                     });
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             return null;
         }
         return userProfile;
+    }
+
+    @Nullable
+    @Override
+    public Map<UserProfile, Integer> getScoreboard() {
+        final Map<UserProfile, Integer> scoreboard = new HashMap<>();
+        try {
+            database.execQuery("SELECT * FROM User ORDER BY score DESC LIMIT 20",
+                    result -> {
+                        while (result.next()) {
+                            final UserProfile userProfile = new UserProfile();
+                            resultToUserProfile(userProfile, result);
+                            scoreboard.put(userProfile, result.getInt("score"));
+                        }
+                    });
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+        return scoreboard;
+    }
+
+    private void resultToUserProfile(UserProfile userProfile, ResultSet resultSet) throws SQLException {
+        userProfile.setId(resultSet.getLong("id"));
+        userProfile.setLogin(resultSet.getString("login"));
+        userProfile.setPassword(resultSet.getString("password"));
+        userProfile.setEmail(resultSet.getString("email"));
     }
 }

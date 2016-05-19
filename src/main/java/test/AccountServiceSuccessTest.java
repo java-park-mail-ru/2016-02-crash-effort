@@ -1,13 +1,14 @@
 package test;
 
 import com.github.javafaker.Faker;
-import main.AccountServiceDBImpl;
+import main.AccountService;
+import main.AccountServiceImpl;
+import main.Configuration;
 import main.UserProfile;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
+import java.io.IOException;
 import java.sql.SQLException;
 
 /**
@@ -17,25 +18,27 @@ import java.sql.SQLException;
 public class AccountServiceSuccessTest extends Assert {
 
     Faker faker;
-    AccountServiceDBImpl accountService;
+    AccountService accountService;
+    private static final String CONFIG = "cfg/server.properties";
 
     @Before
     public void setUp() {
         faker = new Faker();
-        accountService = new AccountServiceDBImpl();
-        try {
-            accountService.initialize();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
 
-    @After
-    public void tearDown() {
+        final Configuration configuration;
         try {
-            accountService.close();
-        } catch (SQLException e) {
+            configuration = new Configuration(CONFIG);
+        } catch (IOException | NumberFormatException e) {
+            System.out.println("Properties error:");
+            System.out.println(e.getMessage());
+            System.exit(1);
+            return;
+        }
+
+        try {
+            accountService = new AccountServiceImpl(configuration.getDbName(), configuration.getDbHost(), configuration.getDbPort(),
+                    configuration.getDbUsername(), configuration.getDbPassword());
+        } catch (SQLException | IOException e) {
             e.printStackTrace();
             System.exit(1);
         }

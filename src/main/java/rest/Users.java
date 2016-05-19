@@ -38,13 +38,12 @@ public class Users {
         final Long longId = parseId(id);
         if (longId == null)
             return Response.status(Response.Status.BAD_REQUEST).entity(ValidationHelper.EMPTY_JSON).build();
+        if (!accountService.isLoggedIn(sessionId))
+            return Response.status(Response.Status.UNAUTHORIZED).entity(ValidationHelper.EMPTY_JSON).build();
 
         final UserProfile user = accountService.getUser(longId);
         if (user == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity(ValidationHelper.EMPTY_JSON).build();
-        }
-        else if (!accountService.isLoggedIn(sessionId)) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(ValidationHelper.EMPTY_JSON).build();
         } else {
             return Response.status(Response.Status.OK).entity(user.getJsonInfo()).build();
         }

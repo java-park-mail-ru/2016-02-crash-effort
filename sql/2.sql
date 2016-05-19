@@ -1,0 +1,2 @@
+ALTER TABLE `java_database`.`User` 
+ADD COLUMN `score` INT(10) UNSIGNED NOT NULL DEFAULT 0 AFTER `email`;

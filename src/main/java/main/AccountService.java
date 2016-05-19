@@ -1,11 +1,11 @@
 package main;
 
+import java.util.Map;
+
 /**
  * Created by vladislav on 28.03.16.
  */
 public interface AccountService {
-    void initialize() throws Exception;
-    void close() throws Exception;
     UserProfile addUser(UserProfile userProfile);
     UserProfile getUser(long id);
     boolean editUser(UserProfile user, UserProfile newData);
@@ -15,4 +15,5 @@ public interface AccountService {
     boolean isLoggedIn(String hash);
     UserProfile getUserBySession(String hash);
     UserProfile getUserByLogin(String login);
+    Map<UserProfile, Integer> getScoreboard();
 }
