@@ -4,11 +4,10 @@ import main.FileHelper;
 import msgsystem.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.*;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by vladislav on 19.04.16.
@@ -18,8 +17,8 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
     private static final String CARDS = "cfg/cards.json";
     private static JSONArray cards;
 
-    private final Map<String, Lobby> userToLobby = new ConcurrentHashMap<>();
-    private final Map<String, Address> userToSocketAddress = new ConcurrentHashMap<>();
+    private final Map<String, Lobby> userToLobby = new HashMap<>();
+    private final Map<String, Address> userToSocketAddress = new HashMap<>();
     Lobby vacantLobby;
 
     final MessageSystem messageSystem;
