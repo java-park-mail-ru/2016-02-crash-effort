@@ -1,7 +1,8 @@
 package websocket;
 
 import main.AccountService;
-import mechanics.GameMechanics;
+import msgsystem.Address;
+import msgsystem.MessageSystem;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
@@ -14,12 +15,14 @@ import javax.servlet.http.HttpSession;
  */
 public class GameWebSocketCreator implements WebSocketCreator {
 
-    private final AccountService accountService;
-    private final GameMechanics gameMechanics;
+    final AccountService accountService;
+    final MessageSystem messageSystem;
+    final Address addressGM;
 
-    GameWebSocketCreator(AccountService accountService, GameMechanics gameMechanics) {
+    GameWebSocketCreator(AccountService accountService, MessageSystem messageSystem, Address addressGM) {
         this.accountService = accountService;
-        this.gameMechanics = gameMechanics;
+        this.messageSystem = messageSystem;
+        this.addressGM = addressGM;
     }
 
     @Nullable
@@ -32,6 +35,8 @@ public class GameWebSocketCreator implements WebSocketCreator {
         }
         final String sessionId = session.getId();
 
-        return new GameWebSocket(sessionId, accountService, gameMechanics);
+        final GameWebSocket gameWebSocket = new GameWebSocket(sessionId, accountService, messageSystem, addressGM);
+        gameWebSocket.start();
+        return gameWebSocket;
     }
 }

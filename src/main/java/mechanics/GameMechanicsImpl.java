@@ -1,9 +1,10 @@
 package mechanics;
 
 import main.FileHelper;
+import msgsystem.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import websocket.GameWebSocket;
+
 import java.io.*;
 import java.util.Map;
 import java.util.Random;
@@ -12,22 +13,27 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by vladislav on 19.04.16.
  */
-public class GameMechanicsImpl implements GameMechanics {
+public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
 
     private static final String CARDS = "cfg/cards.json";
     private static JSONArray cards;
 
     private final Map<String, Lobby> userToLobby = new ConcurrentHashMap<>();
-    private final Map<String, GameWebSocket> userToSocket = new ConcurrentHashMap<>();
+    private final Map<String, Address> userToSocketAddress = new ConcurrentHashMap<>();
     Lobby vacantLobby;
 
-    public GameMechanicsImpl() throws IOException {
+    final MessageSystem messageSystem;
+    final Address address;
+
+    public GameMechanicsImpl(MessageSystem messageSystem) throws IOException {
+        this.messageSystem = messageSystem;
+        address = new Address();
         cards = new JSONArray(FileHelper.readAllText(CARDS));
     }
 
     @Override
-    public void registerUser(String userName, GameWebSocket gameWebSocket) {
-        userToSocket.put(userName, gameWebSocket);
+    public void registerUser(String userName, Address addressSocket) {
+        userToSocketAddress.put(userName, addressSocket);
         if (vacantLobby == null) {
             vacantLobby = new Lobby(new GameUser(userName));
         } else {
@@ -42,15 +48,15 @@ public class GameMechanicsImpl implements GameMechanics {
 
     @Override
     public void unregisterUser(String userName) {
-        userToSocket.remove(userName);
+        userToSocketAddress.remove(userName);
         userToLobby.remove(userName);
-        if (vacantLobby.getUserbyName(userName) != null)
+        if (vacantLobby != null && vacantLobby.getUserbyName(userName) != null)
             vacantLobby = null;
     }
 
     @Override
     public boolean isRegistered(String username) {
-        return userToSocket.containsKey(username);
+        return userToSocketAddress.containsKey(username);
     }
 
     @Override
@@ -71,7 +77,8 @@ public class GameMechanicsImpl implements GameMechanics {
     }
 
     public void sendMessageToUser(String userName, String message) {
-        userToSocket.get(userName).sendMessage(message);
+        final MsgBase msgSendData = new MsgSendData(address, userToSocketAddress.get(userName), message);
+        messageSystem.sendMessage(msgSendData);
     }
 
     private void sendStartGame() {
@@ -193,7 +200,7 @@ public class GameMechanicsImpl implements GameMechanics {
 
         jsonObject.put("command", "win");
         sendMessageToUser(user.getUsername(), jsonObject.toString());
-        userToSocket.get(user.getUsername()).disconnect();
+        disconnect(user.getUsername());
     }
 
     private void sendLose(GameUser user) {
@@ -201,6 +208,38 @@ public class GameMechanicsImpl implements GameMechanics {
 
         jsonObject.put("command", "lose");
         sendMessageToUser(user.getUsername(), jsonObject.toString());
-        userToSocket.get(user.getUsername()).disconnect();
+        disconnect(user.getUsername());
+    }
+
+    private void disconnect(String username) {
+        final MsgBase msgDisconnect = new MsgDisconnect(address, userToSocketAddress.get(username));
+        messageSystem.sendMessage(msgDisconnect);
+    }
+
+    @Override
+    public Address getAddress() {
+        return address;
+    }
+
+    @Override
+    public MessageSystem getMessageSystem() {
+        return messageSystem;
+    }
+
+    @Override
+    public void start() {
+        (new Thread(this)).start();
+    }
+
+    @Override
+    public void run() {
+        while (!Thread.interrupted()) {
+            messageSystem.execForSubscriber(this);
+            try {
+                Thread.sleep(MessageSystem.IDLE_TIME);
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
     }
 }
