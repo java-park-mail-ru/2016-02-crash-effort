@@ -2,7 +2,7 @@ package main;
 
 import db.Database;
 import org.jetbrains.annotations.Nullable;
-import threading.ThreadConverter;
+
 import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,8 +25,12 @@ public class AccountServiceImpl implements AccountService {
         try {
             if (!userProfile.getImgData().isEmpty()) {
                 final String filename = String.format("avatars/%s.png", userProfile.getLogin());
-                final ThreadConverter threadConverter = new ThreadConverter(userProfile.getImgData(), filename);
-                threadConverter.start();
+                try {
+                    FileHelper.base64ToImage(userProfile.getImgData(), filename);
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                    return null;
+                }
             }
 
             final int id = database.execUpdate(String.format("INSERT INTO User (login, password, email) VALUES ('%s', '%s', '%s')",
