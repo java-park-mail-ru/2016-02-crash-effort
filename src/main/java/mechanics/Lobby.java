@@ -36,7 +36,7 @@ public class Lobby {
     public GameUser getUserbyName(String username) {
         if (username.equals(firstUser.getUsername()))
             return firstUser;
-        else if (username.equals(secondUser.getUsername()))
+        else if (secondUser != null && username.equals(secondUser.getUsername()))
             return secondUser;
         else
             return null;
