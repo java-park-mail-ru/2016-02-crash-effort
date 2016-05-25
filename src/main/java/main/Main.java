@@ -2,9 +2,10 @@ package main;
 
 import mechanics.GameMechanicsImpl;
 import msgsystem.MessageSystem;
-import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -35,7 +36,7 @@ public class Main {
 
     private static final String CONFIG = "cfg/server.properties";
 
-    @SuppressWarnings("OverlyBroadThrowsClause")
+    @SuppressWarnings({"OverlyBroadThrowsClause", "IOResourceOpenedButNotSafelyClosed"})
     public static void main(String[] args) throws Exception {
         final Configuration configuration;
         try {
@@ -75,6 +76,25 @@ public class Main {
         System.out.append("Starting at port: ").append(String.valueOf(configuration.getPort())).append('\n');
 
         final Server server = new Server(configuration.getPort());
+        //noinspection IOResourceOpenedButNotSafelyClosed,resource
+        final ServerConnector serverConnector = new ServerConnector(server);
+        serverConnector.setPort(configuration.getPort());
+
+        final HttpConfiguration https = new HttpConfiguration();
+        https.addCustomizer(new SecureRequestCustomizer());
+
+        final SslContextFactory sslContextFactory = new SslContextFactory();
+        sslContextFactory.setKeyStorePath("cfg/keystore.jks");
+        sslContextFactory.setKeyStorePassword("123456");
+        sslContextFactory.setKeyManagerPassword("123456");
+
+        //noinspection IOResourceOpenedButNotSafelyClosed,resource
+        final ServerConnector sslConnector = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"),
+                new HttpConnectionFactory(https));
+        sslConnector.setPort(configuration.getSslPort());
+
+        server.setConnectors(new Connector[] { serverConnector, sslConnector });
+
         final ServletContextHandler contextHandler = new ServletContextHandler(server, "/api", ServletContextHandler.SESSIONS);
         final ResourceConfig config = new ResourceConfig(Session.class, Users.class, Scoreboard.class);
         config.register(new AccountServiceAbstractBinder(accountService));
@@ -84,5 +104,8 @@ public class Main {
 
         server.start();
         server.join();
+
+        serverConnector.close();
+        sslConnector.close();
     }
 }

@@ -7,5 +7,4 @@ package msgsystem;
 public interface Subscriber {
     Address getAddress();
     MessageSystem getMessageSystem();
-    void start();
 }

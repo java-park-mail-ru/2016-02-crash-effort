@@ -225,7 +225,6 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
         return messageSystem;
     }
 
-    @Override
     public void start() {
         (new Thread(this)).start();
     }

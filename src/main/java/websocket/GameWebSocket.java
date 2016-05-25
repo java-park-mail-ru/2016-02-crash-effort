@@ -16,16 +16,17 @@ import java.io.IOException;
  * Created by vladislav on 19.04.16.
  */
 @WebSocket
-public class GameWebSocket implements Subscriber, Runnable {
+public class GameWebSocket implements Subscriber {
 
-    final AccountService accountService;
-    final String sessionId;
-    String username;
-    Session currentSession;
+    private final AccountService accountService;
+    private final String sessionId;
+    private String username;
+    private Session currentSession;
+    private boolean connected;
 
-    final MessageSystem messageSystem;
-    final Address address;
-    final Address addressGM;
+    private final MessageSystem messageSystem;
+    private final Address address;
+    private final Address addressGM;
 
     GameWebSocket(String sessionId, AccountService accountService, MessageSystem messageSystem, Address addressGM) {
         this.accountService = accountService;
@@ -47,6 +48,7 @@ public class GameWebSocket implements Subscriber, Runnable {
     @SuppressWarnings("unused")
     @OnWebSocketConnect
     public void onConnect(Session session) {
+        connected = true;
         currentSession = session;
         final UserProfile user = accountService.getUserBySession(sessionId);
         if (user == null) {
@@ -62,6 +64,8 @@ public class GameWebSocket implements Subscriber, Runnable {
     @SuppressWarnings("unused")
     @OnWebSocketClose
     public void onDisconnect(int statusCode, String reason) {
+        connected = false;
+
         System.out.println("User disconnected with code " + statusCode + " by reason: " + reason);
         if (username != null) {
             final MsgBase messageUnregister = new MsgUnregister(address, addressGM, username);
@@ -79,10 +83,15 @@ public class GameWebSocket implements Subscriber, Runnable {
 
     public void disconnect() {
         currentSession.close();
+        connected = false;
     }
 
     public Session getCurrentSession() {
         return currentSession;
+    }
+
+    public boolean isConnected() {
+        return connected;
     }
 
     @Override
@@ -95,20 +104,4 @@ public class GameWebSocket implements Subscriber, Runnable {
         return messageSystem;
     }
 
-    @Override
-    public void start() {
-        (new Thread(this)).start();
-    }
-
-    @Override
-    public void run() {
-        while (!Thread.interrupted()) {
-            messageSystem.execForSubscriber(this);
-            try {
-                Thread.sleep(MessageSystem.IDLE_TIME);
-            } catch (InterruptedException e) {
-                return;
-            }
-        }
-    }
 }
