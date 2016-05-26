@@ -170,7 +170,7 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
                 return true;
             }
         } else {
-            lobby.getFirstUser().setHealth(lobby.getFirstUser().getHealth() - score);
+            lobby.getFirstUser().setHealth(lobby.getFirstUser().getHealth() + score);
             if (lobby.getFirstUser().getHealth() < 1) {
                 sendWin(lobby.getSecondUser());
                 sendLose(lobby.getFirstUser());
