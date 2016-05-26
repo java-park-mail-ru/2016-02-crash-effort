@@ -32,9 +32,9 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
     public void registerUser(String userName, Address addressSocket) {
         userToSocketAddress.put(userName, addressSocket);
         if (vacantLobby == null) {
-            vacantLobby = new Lobby(new GameUser(userName));
+            vacantLobby = new Lobby(new GameUser(userName, cards));
         } else {
-            vacantLobby.setSecondUser(new GameUser(userName));
+            vacantLobby.setSecondUser(new GameUser(userName, cards));
             userToLobby.put(vacantLobby.getFirstUser().getUsername(), vacantLobby);
             userToLobby.put(vacantLobby.getSecondUser().getUsername(), vacantLobby);
 
@@ -89,27 +89,42 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
     private void sendStartGame() {
         final int cardsCount = 3;
 
+        vacantLobby.getFirstUser().setCards(getRandomCards(vacantLobby.getFirstUser(), cardsCount));
         final MsgBase msgStartGameFirst = new MsgStartGame(address, userToSocketAddress.get(vacantLobby.getFirstUser().getUsername()),
-                true, vacantLobby.getFirstUser().getHealth(), vacantLobby.getSecondUser().getHealth(), getRandomCards(cardsCount));
+                true, vacantLobby.getFirstUser().getHealth(), vacantLobby.getSecondUser().getHealth(), vacantLobby.getFirstUser().getCards());
         messageSystem.sendMessage(msgStartGameFirst);
+
+        vacantLobby.getSecondUser().setCards(getRandomCards(vacantLobby.getSecondUser(), cardsCount));
         final MsgBase msgStartGameSecond = new MsgStartGame(address, userToSocketAddress.get(vacantLobby.getSecondUser().getUsername()),
-                false, vacantLobby.getSecondUser().getHealth(), vacantLobby.getFirstUser().getHealth(), getRandomCards(cardsCount));
+                false, vacantLobby.getSecondUser().getHealth(), vacantLobby.getFirstUser().getHealth(), vacantLobby.getSecondUser().getCards());
         messageSystem.sendMessage(msgStartGameSecond);
     }
 
-    public JSONArray getRandomCards(int count) {
+    private JSONArray getRandomCards(GameUser user, int count) {
         final JSONArray jsonArray = new JSONArray();
         final Random r = new Random();
-        final List<Integer> ids = new ArrayList<>(count);
-
+        final JSONArray deck = user.getDeck();
         for (int i = 0; i < count; ++i) {
-            final int id = r.nextInt(cards.length());
-            if (!ids.contains(id)) {
-                ids.add(id);
-                jsonArray.put(cards.get(id));
-            } else { --i; }
+            final int id = r.nextInt(deck.length());
+            jsonArray.put(deck.get(id));
+            deck.remove(id);
         }
+
         return jsonArray;
+    }
+
+    private JSONArray addCards(GameUser user, JSONArray oldCards, JSONArray deletedCards) {
+        for (int i = 0; i < deletedCards.length(); ++i)
+            for (int j = 0; j < oldCards.length(); ++j) {
+                if (deletedCards.getJSONObject(i).similar(oldCards.getJSONObject(j)))
+                    oldCards.remove(j--);
+            }
+
+        final JSONArray newCards = getRandomCards(user, deletedCards.length());
+        for (int i = 0; i < newCards.length(); ++i)
+            oldCards.put(newCards.getJSONObject(i));
+
+        return oldCards;
     }
 
     private void nextTurn(Lobby lobby, JSONArray inCards) {
@@ -128,12 +143,12 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
             final boolean endGame = endRound(lobby);
             if (!endGame) {
                 final MsgBase msgEndRoundFirst = new MsgEndRound(address, userToSocketAddress.get(lobby.getFirstUser().getUsername()),
-                        lobby.getFirstUser().getHealth(), lobby.getSecondUser().getHealth(), lobby.getFirstUser().getRoundScores(),
-                        lobby.getSecondUser().getRoundScores(), lobby.getSecondUser().getRoundCards());
+                        lobby.getFirstUser().getHealth(), lobby.getSecondUser().getHealth(), lobby.getFirstUser().getPower(),
+                        lobby.getSecondUser().getPower(), lobby.getSecondUser().getRoundCards());
                 messageSystem.sendMessage(msgEndRoundFirst);
                 final MsgBase msgEndRoundSecond = new MsgEndRound(address, userToSocketAddress.get(lobby.getSecondUser().getUsername()),
-                        lobby.getSecondUser().getHealth(), lobby.getFirstUser().getHealth(), lobby.getSecondUser().getRoundScores(),
-                        lobby.getFirstUser().getRoundScores(), lobby.getFirstUser().getRoundCards());
+                        lobby.getSecondUser().getHealth(), lobby.getFirstUser().getHealth(), lobby.getSecondUser().getPower(),
+                        lobby.getFirstUser().getPower(), lobby.getFirstUser().getRoundCards());
                 messageSystem.sendMessage(msgEndRoundSecond);
                 lobby.setAllWaiting();
             }
@@ -143,11 +158,11 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
 
     private void setScore(Lobby lobby, JSONArray inCards) {
         final GameUser gameUser = lobby.getCurrentUser();
-        gameUser.setRoundScores(0);
+        gameUser.setPower(0);
         gameUser.setRoundCards(idToCards(inCards));
         for (int i = 0; i < inCards.length(); ++i) {
             final JSONObject card = cards.getJSONObject(inCards.getInt(i) - 1);
-            gameUser.setRoundScores(gameUser.getRoundScores() + card.getInt("power"));
+            gameUser.setPower(gameUser.getPower() + card.getInt("power"));
         }
     }
 
@@ -160,7 +175,7 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
     }
 
     private boolean endRound(Lobby lobby) {
-        final int score = lobby.getFirstUser().getRoundScores() - lobby.getSecondUser().getRoundScores();
+        final int score = lobby.getFirstUser().getPower() - lobby.getSecondUser().getPower();
 
         if (score > 0) {
             lobby.getSecondUser().setHealth(lobby.getSecondUser().getHealth() - score);
@@ -177,6 +192,19 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
                 return true;
             }
         }
+
+        if (lobby.isLastRound()) {
+            if (lobby.getFirstUser().getHealth() > lobby.getSecondUser().getHealth()) {
+                sendWin(lobby.getFirstUser());
+                sendLose(lobby.getSecondUser());
+                return true;
+            } else {
+                sendWin(lobby.getSecondUser());
+                sendLose(lobby.getFirstUser());
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -188,29 +216,29 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
         final boolean firstWait = lobby.getFirstUser().isWaiting();
         final boolean secondWait = lobby.getSecondUser().isWaiting();
 
-        if (!firstWait && !secondWait)
+        if (!firstWait && !secondWait) {
+            lobby.nextRound();
             sendNextRound(lobby);
+        }
     }
 
     private void sendNextRound(Lobby lobby) {
         final MsgBase msgNextRoundFirst = new MsgNextRound(address, userToSocketAddress.get(lobby.getFirstUser().getUsername()), true,
-                getRandomCards(lobby.getFirstUser().getRoundCards().length()));
+                addCards(lobby.getFirstUser(), lobby.getFirstUser().getCards(), lobby.getFirstUser().getRoundCards()));
         messageSystem.sendMessage(msgNextRoundFirst);
         final MsgBase msgNextRoundSecond = new MsgNextRound(address, userToSocketAddress.get(lobby.getSecondUser().getUsername()), false,
-                getRandomCards(lobby.getSecondUser().getRoundCards().length()));
+                addCards(lobby.getSecondUser(), lobby.getSecondUser().getCards(), lobby.getSecondUser().getRoundCards()));
         messageSystem.sendMessage(msgNextRoundSecond);
     }
 
     private void sendWin(GameUser user) {
         final MsgBase msgEndGame = new MsgEndGame(address, userToSocketAddress.get(user.getUsername()), true);
         messageSystem.sendMessage(msgEndGame);
-        disconnect(user.getUsername());
     }
 
     private void sendLose(GameUser user) {
         final MsgBase msgEndGame = new MsgEndGame(address, userToSocketAddress.get(user.getUsername()), false);
         messageSystem.sendMessage(msgEndGame);
-        disconnect(user.getUsername());
     }
 
     private void disconnect(String username) {

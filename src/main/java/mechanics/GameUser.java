@@ -9,18 +9,21 @@ public class GameUser {
 
     private final String username;
     private int health;
+    private JSONArray cards;
+    private JSONArray deck;
 
-    private int roundScores;
+    private int power;
     private JSONArray roundCards;
 
     private boolean waiting;
      private boolean connected;
 
-    GameUser(String username) {
+    GameUser(String username, JSONArray cards) {
         this.username = username;
         //noinspection MagicNumber
         this.health = 50;
         connected = true;
+        deck = new JSONArray(cards.toString());
     }
 
     public String getUsername() {
@@ -35,12 +38,24 @@ public class GameUser {
         this.health = health;
     }
 
-    public int getRoundScores() {
-        return roundScores;
+    public JSONArray getCards() {
+        return cards;
     }
 
-    public void setRoundScores(int roundScores) {
-        this.roundScores = roundScores;
+    public void setCards(JSONArray cards) {
+        this.cards = cards;
+    }
+
+    public JSONArray getDeck() {
+        return deck;
+    }
+
+    public int getPower() {
+        return power;
+    }
+
+    public void setPower(int power) {
+        this.power = power;
     }
 
     public JSONArray getRoundCards() {
