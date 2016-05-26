@@ -83,11 +83,6 @@ public class GameWebSocket implements Subscriber {
         }
     }
 
-    public void disconnect() {
-        currentSession.close();
-        connected = false;
-    }
-
     public Session getCurrentSession() {
         return currentSession;
     }

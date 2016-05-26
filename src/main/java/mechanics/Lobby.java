@@ -68,10 +68,6 @@ public class Lobby {
 
     public void nextRound() { ++round; }
 
-    public int getRound() {
-        return round;
-    }
-
     public boolean isLastRound() {
         return round > 4;
     }

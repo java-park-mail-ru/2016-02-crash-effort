@@ -10,7 +10,7 @@ public class GameUser {
     private final String username;
     private int health;
     private JSONArray cards;
-    private JSONArray deck;
+    private final JSONArray deck;
 
     private int power;
     private JSONArray roundCards;

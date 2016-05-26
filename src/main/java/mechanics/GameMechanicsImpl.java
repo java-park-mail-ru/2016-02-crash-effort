@@ -241,11 +241,6 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
         messageSystem.sendMessage(msgEndGame);
     }
 
-    private void disconnect(String username) {
-        final MsgBase msgDisconnect = new MsgDisconnect(address, userToSocketAddress.get(username));
-        messageSystem.sendMessage(msgDisconnect);
-    }
-
     @Override
     public Address getAddress() {
         return address;
