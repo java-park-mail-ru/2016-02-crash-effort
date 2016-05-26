@@ -49,6 +49,7 @@ public class GameWebSocketCreator implements WebSocketCreator, Runnable {
         return gameWebSocket;
     }
 
+    @SuppressWarnings("OverlyBroadCatchBlock")
     @Override
     public void run() {
         while (!Thread.interrupted()) {
@@ -65,6 +66,8 @@ public class GameWebSocketCreator implements WebSocketCreator, Runnable {
                 Thread.sleep(MessageSystem.IDLE_TIME);
             } catch (InterruptedException e) {
                 return;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }

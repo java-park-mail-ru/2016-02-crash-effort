@@ -45,6 +45,15 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
 
     @Override
     public void unregisterUser(String userName) {
+        final Lobby lobby = userToLobby.get(userName);
+        if (lobby != null) {
+            final GameUser gameUser = lobby.getEnemybyName(userName);
+            if (gameUser != null) {
+                final MsgBase msgEnemyDisconnected = new MsgEnemyDisconnected(address, userToSocketAddress.get(gameUser.getUsername()));
+                messageSystem.sendMessage(msgEnemyDisconnected);
+            }
+        }
+
         userToSocketAddress.remove(userName);
         userToLobby.remove(userName);
         if (vacantLobby != null && vacantLobby.getUserbyName(userName) != null)
@@ -210,6 +219,7 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
         (new Thread(this)).start();
     }
 
+    @SuppressWarnings("OverlyBroadCatchBlock")
     @Override
     public void run() {
         while (!Thread.interrupted()) {
@@ -218,6 +228,8 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
                 Thread.sleep(MessageSystem.IDLE_TIME);
             } catch (InterruptedException e) {
                 return;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }

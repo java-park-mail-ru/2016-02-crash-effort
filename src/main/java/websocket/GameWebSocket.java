@@ -17,6 +17,7 @@ import java.io.IOException;
  */
 @WebSocket
 public class GameWebSocket implements Subscriber {
+    private static final int SOCKET_IDLE_TIME = 5 * 1000 * 60;
 
     private final AccountService accountService;
     private final String sessionId;
@@ -50,6 +51,7 @@ public class GameWebSocket implements Subscriber {
     public void onConnect(Session session) {
         connected = true;
         currentSession = session;
+        currentSession.setIdleTimeout(SOCKET_IDLE_TIME);
         final UserProfile user = accountService.getUserBySession(sessionId);
         if (user == null) {
             session.close(Response.SC_FORBIDDEN, "Your access to this resource is denied");

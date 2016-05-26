@@ -42,6 +42,16 @@ public class Lobby {
             return null;
     }
 
+    @Nullable
+    public GameUser getEnemybyName(String username) {
+        if (username.equals(firstUser.getUsername()))
+            return secondUser;
+        else if (secondUser != null && username.equals(secondUser.getUsername()))
+            return firstUser;
+        else
+            return null;
+    }
+
     public boolean isFirstUserTurn() {
         return firstUserTurn;
     }
