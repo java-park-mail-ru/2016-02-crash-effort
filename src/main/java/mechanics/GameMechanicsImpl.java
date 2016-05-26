@@ -223,8 +223,8 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
     @Override
     public void run() {
         while (!Thread.interrupted()) {
-            messageSystem.execForSubscriber(this);
             try {
+                messageSystem.execForSubscriber(this);
                 Thread.sleep(MessageSystem.IDLE_TIME);
             } catch (InterruptedException e) {
                 return;

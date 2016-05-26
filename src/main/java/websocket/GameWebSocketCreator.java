@@ -53,16 +53,16 @@ public class GameWebSocketCreator implements WebSocketCreator, Runnable {
     @Override
     public void run() {
         while (!Thread.interrupted()) {
-            for (final Iterator<GameWebSocket> it = sockets.iterator(); it.hasNext();) {
-                final GameWebSocket ws = it.next();
-                if (ws.isConnected()) {
-                    messageSystem.execForSubscriber(ws);
-                } else {
-                    it.remove();
-                }
-            }
-
             try {
+                for (final Iterator<GameWebSocket> it = sockets.iterator(); it.hasNext();) {
+                    final GameWebSocket ws = it.next();
+                    if (ws.isConnected()) {
+                        messageSystem.execForSubscriber(ws);
+                    } else {
+                        it.remove();
+                    }
+                }
+
                 Thread.sleep(MessageSystem.IDLE_TIME);
             } catch (InterruptedException e) {
                 return;
