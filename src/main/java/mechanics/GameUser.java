@@ -13,12 +13,14 @@ public class GameUser {
     private int roundScores;
     private JSONArray roundCards;
 
-    boolean waiting;
+    private boolean waiting;
+     private boolean connected;
 
     GameUser(String username) {
         this.username = username;
         //noinspection MagicNumber
         this.health = 50;
+        connected = true;
     }
 
     public String getUsername() {
@@ -55,5 +57,13 @@ public class GameUser {
 
     public void setWaiting(boolean waiting) {
         this.waiting = waiting;
+    }
+
+    public void disconnect() {
+        this.connected = false;
+    }
+
+    public boolean isConnected() {
+        return connected;
     }
 }

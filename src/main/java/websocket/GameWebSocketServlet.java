@@ -24,8 +24,6 @@ public class GameWebSocketServlet extends WebSocketServlet {
 
     @Override
     public void configure(WebSocketServletFactory factory) {
-        final GameWebSocketCreator gameWebSocketCreator = new GameWebSocketCreator(accountService, messageSystem, addressGM);
-        gameWebSocketCreator.start();
-        factory.setCreator(gameWebSocketCreator);
+        factory.setCreator(new GameWebSocketCreator(accountService, messageSystem, addressGM));
     }
 }

@@ -1,5 +1,6 @@
 package msgsystem;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import websocket.GameWebSocket;
 
@@ -9,10 +10,12 @@ import websocket.GameWebSocket;
 public class MsgNextRound extends MsgToWS {
 
     private final boolean turn;
+    private final JSONArray newCards;
 
-    public MsgNextRound(Address from, Address to, boolean turn) {
+    public MsgNextRound(Address from, Address to, boolean turn, JSONArray newCards) {
         super(from, to);
         this.turn = turn;
+        this.newCards = newCards;
     }
 
     @Override
@@ -21,6 +24,7 @@ public class MsgNextRound extends MsgToWS {
 
         jsonObject.put("command", "nextRound");
         jsonObject.put("turn", turn);
+        jsonObject.put("newCards", newCards);
 
         gameWebSocket.sendMessage(jsonObject.toString());
     }

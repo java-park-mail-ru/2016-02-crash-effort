@@ -14,16 +14,14 @@ public class MsgEndRound extends MsgToWS {
     private final int power;
     private final int enemyPower;
     private final JSONArray enemyCards;
-    private final JSONArray newCards;
 
-    public MsgEndRound(Address from, Address to, int health, int enemyHealth, int power, int enemyPower, JSONArray enemyCards, JSONArray newCards) {
+    public MsgEndRound(Address from, Address to, int health, int enemyHealth, int power, int enemyPower, JSONArray enemyCards) {
         super(from, to);
         this.health = health;
         this.enemyHealth = enemyHealth;
         this.power = power;
         this.enemyPower = enemyPower;
         this.enemyCards = enemyCards;
-        this.newCards = newCards;
     }
 
     @Override
@@ -36,7 +34,6 @@ public class MsgEndRound extends MsgToWS {
         jsonObject.put("power", power);
         jsonObject.put("enemyPower", enemyPower);
         jsonObject.put("enemyCards", enemyCards);
-        jsonObject.put("newCards", newCards);
 
         gameWebSocket.sendMessage(jsonObject.toString());
     }

@@ -47,9 +47,14 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
     public void unregisterUser(String userName) {
         final Lobby lobby = userToLobby.get(userName);
         if (lobby != null) {
-            final GameUser gameUser = lobby.getEnemybyName(userName);
+            final GameUser gameUser = lobby.getUserbyName(userName);
             if (gameUser != null) {
-                final MsgBase msgEnemyDisconnected = new MsgEnemyDisconnected(address, userToSocketAddress.get(gameUser.getUsername()));
+                gameUser.disconnect();
+            }
+            final GameUser enemy = lobby.getEnemybyName(userName);
+
+            if (enemy != null && enemy.isConnected()) {
+                final MsgBase msgEnemyDisconnected = new MsgEnemyDisconnected(address, userToSocketAddress.get(enemy.getUsername()));
                 messageSystem.sendMessage(msgEnemyDisconnected);
             }
         }
@@ -124,13 +129,11 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
             if (!endGame) {
                 final MsgBase msgEndRoundFirst = new MsgEndRound(address, userToSocketAddress.get(lobby.getFirstUser().getUsername()),
                         lobby.getFirstUser().getHealth(), lobby.getSecondUser().getHealth(), lobby.getFirstUser().getRoundScores(),
-                        lobby.getSecondUser().getRoundScores(), lobby.getSecondUser().getRoundCards(),
-                        getRandomCards(lobby.getFirstUser().getRoundCards().length()));
+                        lobby.getSecondUser().getRoundScores(), lobby.getSecondUser().getRoundCards());
                 messageSystem.sendMessage(msgEndRoundFirst);
                 final MsgBase msgEndRoundSecond = new MsgEndRound(address, userToSocketAddress.get(lobby.getSecondUser().getUsername()),
                         lobby.getSecondUser().getHealth(), lobby.getFirstUser().getHealth(), lobby.getSecondUser().getRoundScores(),
-                        lobby.getFirstUser().getRoundScores(), lobby.getFirstUser().getRoundCards(),
-                        getRandomCards(lobby.getSecondUser().getRoundCards().length()));
+                        lobby.getFirstUser().getRoundScores(), lobby.getFirstUser().getRoundCards());
                 messageSystem.sendMessage(msgEndRoundSecond);
                 lobby.setAllWaiting();
             }
@@ -141,11 +144,19 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
     private void setScore(Lobby lobby, JSONArray inCards) {
         final GameUser gameUser = lobby.getCurrentUser();
         gameUser.setRoundScores(0);
-        gameUser.setRoundCards(inCards);
+        gameUser.setRoundCards(idToCards(inCards));
         for (int i = 0; i < inCards.length(); ++i) {
-            final JSONObject card = cards.getJSONObject(inCards.getInt(i));
+            final JSONObject card = cards.getJSONObject(inCards.getInt(i) - 1);
             gameUser.setRoundScores(gameUser.getRoundScores() + card.getInt("power"));
         }
+    }
+
+    private JSONArray idToCards(JSONArray ids) {
+        final JSONArray cardsArray = new JSONArray();
+        for (int i = 0; i < ids.length(); ++i) {
+            cardsArray.put(cards.getJSONObject(ids.getInt(i) - 1));
+        }
+        return cardsArray;
     }
 
     private boolean endRound(Lobby lobby) {
@@ -182,9 +193,11 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
     }
 
     private void sendNextRound(Lobby lobby) {
-        final MsgBase msgNextRoundFirst = new MsgNextRound(address, userToSocketAddress.get(lobby.getFirstUser().getUsername()), true);
+        final MsgBase msgNextRoundFirst = new MsgNextRound(address, userToSocketAddress.get(lobby.getFirstUser().getUsername()), true,
+                getRandomCards(lobby.getFirstUser().getRoundCards().length()));
         messageSystem.sendMessage(msgNextRoundFirst);
-        final MsgBase msgNextRoundSecond = new MsgNextRound(address, userToSocketAddress.get(lobby.getSecondUser().getUsername()), false);
+        final MsgBase msgNextRoundSecond = new MsgNextRound(address, userToSocketAddress.get(lobby.getSecondUser().getUsername()), false,
+                getRandomCards(lobby.getSecondUser().getRoundCards().length()));
         messageSystem.sendMessage(msgNextRoundSecond);
     }
 
