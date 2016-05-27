@@ -17,9 +17,11 @@ public class MessageSystem {
 
     private Queue<MsgBase> getOrCreate(Address address) {
         ConcurrentLinkedQueue<MsgBase> messageQueue = messages.get(address);
-        if (messageQueue == null) {
-            messageQueue = new ConcurrentLinkedQueue<>();
-            messages.put(address, messageQueue);
+        synchronized (this) {
+            if (messageQueue == null) {
+                messageQueue = new ConcurrentLinkedQueue<>();
+                messages.put(address, messageQueue);
+            }
         }
         return messageQueue;
     }
