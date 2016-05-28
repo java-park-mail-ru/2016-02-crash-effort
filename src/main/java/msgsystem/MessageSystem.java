@@ -15,14 +15,12 @@ public class MessageSystem {
 
     final Map<Address, ConcurrentLinkedQueue<MsgBase>> messages = new ConcurrentHashMap<>();
 
-    private Queue<MsgBase> getOrCreate(Address address) {
+    private synchronized Queue<MsgBase> getOrCreate(Address address) {
         ConcurrentLinkedQueue<MsgBase> messageQueue = messages.get(address);
-        synchronized (this) {
             if (messageQueue == null) {
                 messageQueue = new ConcurrentLinkedQueue<>();
                 messages.put(address, messageQueue);
             }
-        }
         return messageQueue;
     }
 

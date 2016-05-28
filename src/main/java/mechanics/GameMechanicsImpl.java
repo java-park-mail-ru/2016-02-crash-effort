@@ -11,7 +11,6 @@ import java.util.*;
  * Created by vladislav on 19.04.16.
  */
 public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
-
     private static final String CARDS = "cfg/cards.json";
     private JSONArray cards;
 
