@@ -13,7 +13,6 @@ import javax.servlet.http.HttpSession;
  * Created by vladislav on 19.04.16.
  */
 public class GameWebSocketCreator implements WebSocketCreator {
-
     final AccountService accountService;
     final MessageSystem messageSystem;
     final Address addressGM;

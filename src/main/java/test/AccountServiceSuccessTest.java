@@ -47,6 +47,7 @@ public class AccountServiceSuccessTest extends Assert {
     @Test
     public void testAddUser() {
         final UserProfile userProfile = new UserProfile(faker.name().firstName(), faker.name().lastName(), faker.internet().emailAddress());
+        userProfile.setImgData("");
         accountService.addUser(userProfile);
         assertNotNull(userProfile);
     }

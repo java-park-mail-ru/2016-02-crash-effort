@@ -15,7 +15,6 @@ public class GameWebSocketService implements Runnable {
     public GameWebSocketService(MessageSystem messageSystem) {
         this.messageSystem = messageSystem;
         sockets = new ConcurrentLinkedQueue<>();
-
     }
 
     public void start() {
