@@ -193,6 +193,16 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
     }
 
     private boolean endRound(Lobby lobby) {
+        if (isManaWin(lobby.getFirstUser())) {
+            sendWin(lobby.getFirstUser());
+            sendLose(lobby.getSecondUser());
+            return true;
+        } else if (isManaWin(lobby.getSecondUser())) {
+            sendWin(lobby.getSecondUser());
+            sendLose(lobby.getFirstUser());
+            return true;
+        }
+
         if (lobby.getSecondUser().getHealth() < 1) {
             sendWin(lobby.getFirstUser());
             sendLose(lobby.getSecondUser());
@@ -215,6 +225,17 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
         }
 
         return false;
+    }
+
+    public boolean isManaWin(GameUser gameUser) {
+        final JSONArray userCards = gameUser.getRoundCards();
+        if (userCards.length() != 3) return false;
+
+        for (int i = 1, mana = userCards.getJSONObject(0).getInt("mana"); i < userCards.length(); ++i) {
+            if (userCards.getJSONObject(i).getInt("mana") != mana)
+                return false;
+        }
+        return true;
     }
 
     private void nextRound(Lobby lobby, String username) {
