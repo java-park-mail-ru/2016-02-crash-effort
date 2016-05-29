@@ -23,7 +23,6 @@ public class GameWebSocket implements Subscriber {
     private final String sessionId;
     private String username;
     private Session currentSession;
-    private boolean connected;
 
     private final MessageSystem messageSystem;
     private final Address address;
@@ -49,7 +48,6 @@ public class GameWebSocket implements Subscriber {
     @SuppressWarnings("unused")
     @OnWebSocketConnect
     public void onConnect(Session session) {
-        connected = true;
         currentSession = session;
         currentSession.setIdleTimeout(SOCKET_IDLE_TIME);
         final UserProfile user = accountService.getUserBySession(sessionId);
@@ -66,8 +64,6 @@ public class GameWebSocket implements Subscriber {
     @SuppressWarnings("unused")
     @OnWebSocketClose
     public void onDisconnect(int statusCode, String reason) {
-        connected = false;
-
         System.out.println("User disconnected with code " + statusCode + " by reason: " + reason);
         if (username != null) {
             final MsgBase messageUnregister = new MsgUnregister(address, addressGM, username);
@@ -83,12 +79,12 @@ public class GameWebSocket implements Subscriber {
         }
     }
 
-    public Session getCurrentSession() {
-        return currentSession;
+    public boolean isOpen() {
+        return currentSession.isOpen();
     }
 
-    public boolean isConnected() {
-        return connected;
+    public void close(int statusCode, String reason) {
+        currentSession.close(statusCode, reason);
     }
 
     @Override

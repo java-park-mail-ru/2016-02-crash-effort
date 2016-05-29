@@ -32,7 +32,7 @@ public class GameWebSocketService implements Runnable {
             try {
                 for (final Iterator<GameWebSocket> it = sockets.iterator(); it.hasNext();) {
                     final GameWebSocket ws = it.next();
-                    if (ws.isConnected()) {
+                    if (ws.isOpen()) {
                         messageSystem.execForSubscriber(ws);
                     } else {
                         it.remove();

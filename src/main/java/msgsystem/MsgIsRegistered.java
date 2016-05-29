@@ -17,8 +17,9 @@ public class MsgIsRegistered extends MsgToWS {
     @Override
     void exec(GameWebSocket gameWebSocket) {
         if (!result) {
-            gameWebSocket.getCurrentSession().close(Response.SC_FORBIDDEN,
-                    "You has already opened session connected to this resource");
+            final int statusCode = Response.SC_FORBIDDEN;
+            final String reason = "You has already opened session connected to this resource";
+            gameWebSocket.close(statusCode, reason);
         }
     }
 }
