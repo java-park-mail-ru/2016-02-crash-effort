@@ -169,6 +169,18 @@ public class AccountServiceImpl implements AccountService {
         return scoreboard;
     }
 
+    @Override
+    public boolean addUserScore(String login, int score) {
+        try {
+            database.execUpdate(String.format("UPDATE User SET score=score+%d WHERE login='%s'", score, login));
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+
     private void resultToUserProfile(UserProfile userProfile, ResultSet resultSet) throws SQLException {
         userProfile.setId(resultSet.getLong("id"));
         userProfile.setLogin(resultSet.getString("login"));

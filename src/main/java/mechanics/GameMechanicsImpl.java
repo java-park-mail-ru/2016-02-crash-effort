@@ -1,5 +1,6 @@
 package mechanics;
 
+import main.AccountService;
 import main.FileHelper;
 import msgsystem.*;
 import org.json.JSONArray;
@@ -21,8 +22,11 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
     private final MessageSystem messageSystem;
     private final Address address;
 
-    public GameMechanicsImpl(MessageSystem messageSystem) throws IOException {
+    private final AccountService accountService;
+
+    public GameMechanicsImpl(MessageSystem messageSystem, AccountService accountService) throws IOException {
         this.messageSystem = messageSystem;
+        this.accountService = accountService;
         address = new Address();
         cards = new JSONArray(FileHelper.readAllText(CARDS));
     }
@@ -151,8 +155,12 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
             messageSystem.sendMessage(msgEndRoundSecond);
 
             final boolean endGame = endRound(lobby);
-            if (!endGame)
+            if (endGame) {
+                final GameUser maxHealth = lobby.getUserWithMaxHealth();
+                accountService.addUserScore(maxHealth.getUsername(), maxHealth.getHealth());
+            } else {
                 lobby.setAllWaiting();
+            }
         }
         lobby.nextTurn();
     }

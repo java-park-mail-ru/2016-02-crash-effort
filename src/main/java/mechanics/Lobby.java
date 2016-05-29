@@ -54,6 +54,10 @@ public class Lobby {
             return null;
     }
 
+    public GameUser getUserWithMaxHealth() {
+        return (firstUser.getHealth() < secondUser.getHealth()) ? secondUser : firstUser;
+    }
+
     public boolean isFirstUserTurn() {
         return firstUserTurn;
     }

@@ -64,7 +64,7 @@ public class Main {
 
         final GameMechanicsImpl gameMechanics;
         try {
-            gameMechanics = new GameMechanicsImpl(messageSystem);
+            gameMechanics = new GameMechanicsImpl(messageSystem, accountService);
             gameMechanics.start();
         } catch (IOException e) {
             System.out.println("Game Mechanics error:");

@@ -120,4 +120,10 @@ public class AccountServiceSuccessTest extends Assert {
         assertEquals(login, userProfile.getLogin());
         assertEquals(login, userProfile.getPassword());
     }
+
+    @Test
+    public void testAddScore() {
+        final boolean res = accountService.addUserScore("admin", 5);
+        assertTrue(res);
+    }
 }
