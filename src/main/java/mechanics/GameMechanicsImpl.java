@@ -139,18 +139,20 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
             messageSystem.sendMessage(msgNextTurnSecond);
 
         } else if (lobby.isSecondUserTurn()) {
+            setHealth(lobby);
+
+            final MsgBase msgEndRoundFirst = new MsgEndRound(address, userToSocketAddress.get(lobby.getFirstUser().getUsername()),
+                    lobby.getFirstUser().getHealth(), lobby.getSecondUser().getHealth(), lobby.getFirstUser().getPower(),
+                    lobby.getSecondUser().getPower(), lobby.getSecondUser().getRoundCards());
+            messageSystem.sendMessage(msgEndRoundFirst);
+            final MsgBase msgEndRoundSecond = new MsgEndRound(address, userToSocketAddress.get(lobby.getSecondUser().getUsername()),
+                    lobby.getSecondUser().getHealth(), lobby.getFirstUser().getHealth(), lobby.getSecondUser().getPower(),
+                    lobby.getFirstUser().getPower(), lobby.getFirstUser().getRoundCards());
+            messageSystem.sendMessage(msgEndRoundSecond);
+
             final boolean endGame = endRound(lobby);
-            if (!endGame) {
-                final MsgBase msgEndRoundFirst = new MsgEndRound(address, userToSocketAddress.get(lobby.getFirstUser().getUsername()),
-                        lobby.getFirstUser().getHealth(), lobby.getSecondUser().getHealth(), lobby.getFirstUser().getPower(),
-                        lobby.getSecondUser().getPower(), lobby.getSecondUser().getRoundCards());
-                messageSystem.sendMessage(msgEndRoundFirst);
-                final MsgBase msgEndRoundSecond = new MsgEndRound(address, userToSocketAddress.get(lobby.getSecondUser().getUsername()),
-                        lobby.getSecondUser().getHealth(), lobby.getFirstUser().getHealth(), lobby.getSecondUser().getPower(),
-                        lobby.getFirstUser().getPower(), lobby.getFirstUser().getRoundCards());
-                messageSystem.sendMessage(msgEndRoundSecond);
+            if (!endGame)
                 lobby.setAllWaiting();
-            }
         }
         lobby.nextTurn();
     }
@@ -165,6 +167,15 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
         }
     }
 
+    private void setHealth(Lobby lobby) {
+        final int score = lobby.getFirstUser().getPower() - lobby.getSecondUser().getPower();
+        if (score > 0) {
+            lobby.getSecondUser().setHealth(lobby.getSecondUser().getHealth() - score);
+        } else {
+            lobby.getFirstUser().setHealth(lobby.getFirstUser().getHealth() + score);
+        }
+    }
+
     private JSONArray idToCards(JSONArray ids) {
         final JSONArray cardsArray = new JSONArray();
         for (int i = 0; i < ids.length(); ++i) {
@@ -174,34 +185,25 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
     }
 
     private boolean endRound(Lobby lobby) {
-        final int score = lobby.getFirstUser().getPower() - lobby.getSecondUser().getPower();
-
-        if (score > 0) {
-            lobby.getSecondUser().setHealth(lobby.getSecondUser().getHealth() - score);
-            if (lobby.getSecondUser().getHealth() < 1) {
-                sendWin(lobby.getFirstUser());
-                sendLose(lobby.getSecondUser());
-                return true;
-            }
-        } else {
-            lobby.getFirstUser().setHealth(lobby.getFirstUser().getHealth() + score);
-            if (lobby.getFirstUser().getHealth() < 1) {
-                sendWin(lobby.getSecondUser());
-                sendLose(lobby.getFirstUser());
-                return true;
-            }
+        if (lobby.getSecondUser().getHealth() < 1) {
+            sendWin(lobby.getFirstUser());
+            sendLose(lobby.getSecondUser());
+            return true;
+        } else if (lobby.getFirstUser().getHealth() < 1) {
+            sendWin(lobby.getSecondUser());
+            sendLose(lobby.getFirstUser());
+            return true;
         }
 
         if (lobby.isLastRound()) {
             if (lobby.getFirstUser().getHealth() > lobby.getSecondUser().getHealth()) {
                 sendWin(lobby.getFirstUser());
                 sendLose(lobby.getSecondUser());
-                return true;
             } else {
                 sendWin(lobby.getSecondUser());
                 sendLose(lobby.getFirstUser());
-                return true;
             }
+            return true;
         }
 
         return false;

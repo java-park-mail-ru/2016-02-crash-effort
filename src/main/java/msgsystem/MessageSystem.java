@@ -15,13 +15,9 @@ public class MessageSystem {
 
     final Map<Address, ConcurrentLinkedQueue<MsgBase>> messages = new ConcurrentHashMap<>();
 
-    private synchronized Queue<MsgBase> getOrCreate(Address address) {
-        ConcurrentLinkedQueue<MsgBase> messageQueue = messages.get(address);
-            if (messageQueue == null) {
-                messageQueue = new ConcurrentLinkedQueue<>();
-                messages.put(address, messageQueue);
-            }
-        return messageQueue;
+    private Queue<MsgBase> getOrCreate(Address address) {
+        messages.putIfAbsent(address, new ConcurrentLinkedQueue<>());
+        return messages.get(address);
     }
 
     public void sendMessage(MsgBase message) {
