@@ -13,7 +13,7 @@ import java.util.Map;
  * Created by vladislav on 28.03.16.
  */
 public class AccountServiceImpl implements AccountService {
-    Database database;
+    private Database database;
 
     public AccountServiceImpl(String name, String host, int port, String username, String password) throws SQLException, IOException {
         database = new Database(name, host, port, username, password);

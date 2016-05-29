@@ -15,7 +15,7 @@ import java.sql.Statement;
 public class Database implements AutoCloseable {
 
     private static final int VERSION = 2;
-    final BasicDataSource dataSource;
+    private final BasicDataSource dataSource;
 
     public Database(String name, String host, int port, String username, String password) throws SQLException, IOException {
         dataSource = new BasicDataSource();

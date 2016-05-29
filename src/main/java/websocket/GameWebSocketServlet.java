@@ -12,9 +12,9 @@ import javax.servlet.annotation.WebServlet;
  */
 @WebServlet(name = "GameWebSocketServlet", urlPatterns = {"/gameplay"})
 public class GameWebSocketServlet extends WebSocketServlet {
-    final AccountService accountService;
-    final MessageSystem messageSystem;
-    final Address addressGM;
+    private final AccountService accountService;
+    private final MessageSystem messageSystem;
+    private final Address addressGM;
 
     public GameWebSocketServlet(AccountService accountService, MessageSystem messageSystem, Address addressGM) {
         this.accountService = accountService;

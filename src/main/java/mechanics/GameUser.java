@@ -16,7 +16,7 @@ public class GameUser {
     private JSONArray roundCards;
 
     private boolean waiting;
-     private boolean connected;
+    private boolean connected;
 
     GameUser(String username, JSONArray cards) {
         this.username = username;

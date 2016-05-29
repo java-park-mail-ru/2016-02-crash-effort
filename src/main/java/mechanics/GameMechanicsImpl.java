@@ -16,10 +16,10 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
 
     private final Map<String, Lobby> userToLobby = new HashMap<>();
     private final Map<String, Address> userToSocketAddress = new HashMap<>();
-    Lobby vacantLobby;
+    private Lobby vacantLobby;
 
-    final MessageSystem messageSystem;
-    final Address address;
+    private final MessageSystem messageSystem;
+    private final Address address;
 
     public GameMechanicsImpl(MessageSystem messageSystem) throws IOException {
         this.messageSystem = messageSystem;

@@ -28,7 +28,7 @@ import static org.mockito.Mockito.mock;
  */
 @SuppressWarnings("unused")
 public class ApiErrorTest extends JerseyTest {
-    Faker faker;
+    private Faker faker;
     private static final String CONFIG = "cfg/server.properties";
 
     @Override

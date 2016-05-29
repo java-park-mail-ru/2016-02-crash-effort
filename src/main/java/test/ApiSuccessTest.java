@@ -46,7 +46,7 @@ public class ApiSuccessTest extends JerseyTest {
         }
     }
 
-    Faker faker;
+    private Faker faker;
     private static final String CONFIG = "cfg/server.properties";
 
     @Override

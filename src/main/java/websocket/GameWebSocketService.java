@@ -9,8 +9,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * Created by vladislav on 26.05.16.
  */
 public class GameWebSocketService implements Runnable {
-    final ConcurrentLinkedQueue<GameWebSocket> sockets;
-    final MessageSystem messageSystem;
+    private final ConcurrentLinkedQueue<GameWebSocket> sockets;
+    private final MessageSystem messageSystem;
 
     public GameWebSocketService(MessageSystem messageSystem) {
         this.messageSystem = messageSystem;

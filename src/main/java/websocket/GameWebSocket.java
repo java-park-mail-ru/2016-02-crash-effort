@@ -29,7 +29,7 @@ public class GameWebSocket implements Subscriber {
     private final Address address;
     private final Address addressGM;
 
-    GameWebSocket(String sessionId, AccountService accountService, MessageSystem messageSystem, Address addressGM) {
+    public GameWebSocket(String sessionId, AccountService accountService, MessageSystem messageSystem, Address addressGM) {
         this.accountService = accountService;
         this.messageSystem = messageSystem;
         this.sessionId = sessionId;

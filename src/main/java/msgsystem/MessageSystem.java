@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class MessageSystem {
     public static final int IDLE_TIME = 100;
 
-    final Map<Address, ConcurrentLinkedQueue<MsgBase>> messages = new ConcurrentHashMap<>();
+    private final Map<Address, ConcurrentLinkedQueue<MsgBase>> messages = new ConcurrentHashMap<>();
 
     private Queue<MsgBase> getOrCreate(Address address) {
         messages.putIfAbsent(address, new ConcurrentLinkedQueue<>());

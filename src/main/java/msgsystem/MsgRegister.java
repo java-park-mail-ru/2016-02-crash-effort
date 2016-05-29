@@ -6,7 +6,7 @@ import mechanics.GameMechanics;
  * Created by vladislav on 22.05.16.
  */
 public class MsgRegister extends MsgToGM {
-    final String username;
+    private final String username;
 
     public MsgRegister(Address from, Address to, String username) {
         super(from, to);

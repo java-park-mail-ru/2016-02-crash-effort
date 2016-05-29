@@ -6,8 +6,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by vladislav on 21.05.16.
  */
 public class Address {
-    static final AtomicInteger ID_CREATOR = new AtomicInteger();
-    final int subscriberId;
+    private static final AtomicInteger ID_CREATOR = new AtomicInteger();
+    private final int subscriberId;
 
     public Address() {
         this.subscriberId = ID_CREATOR.incrementAndGet();

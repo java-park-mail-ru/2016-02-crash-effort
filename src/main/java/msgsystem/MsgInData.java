@@ -7,8 +7,8 @@ import org.json.JSONObject;
  * Created by vladislav on 22.05.16.
  */
 public class MsgInData extends MsgToGM {
-    final String username;
-    final JSONObject data;
+    private final String username;
+    private final JSONObject data;
 
     public MsgInData(Address from, Address to, String username, String data) {
         super(from, to);

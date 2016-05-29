@@ -7,7 +7,7 @@ import websocket.GameWebSocket;
  * Created by vladislav on 22.05.16.
  */
 public class MsgIsRegistered extends MsgToWS {
-    final boolean result;
+    private final boolean result;
 
     public MsgIsRegistered(Address from, Address to, boolean result) {
         super(from, to);

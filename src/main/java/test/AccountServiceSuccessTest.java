@@ -17,8 +17,8 @@ import java.sql.SQLException;
 @SuppressWarnings("unused")
 public class AccountServiceSuccessTest extends Assert {
 
-    Faker faker;
-    AccountService accountService;
+    private Faker faker;
+    private AccountService accountService;
     private static final String CONFIG = "cfg/server.properties";
 
     @Before
