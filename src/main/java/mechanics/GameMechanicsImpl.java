@@ -56,7 +56,7 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
             }
             final GameUser enemy = lobby.getEnemybyName(userName);
 
-            if (enemy != null && enemy.isConnected()) {
+            if (!lobby.isGameEnd() && enemy != null && enemy.isConnected()) {
                 final MsgBase msgEnemyDisconnected = new MsgEnemyDisconnected(address, userToSocketAddress.get(enemy.getUsername()));
                 messageSystem.sendMessage(msgEnemyDisconnected);
             }
@@ -156,6 +156,8 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
 
             final boolean endGame = endRound(lobby);
             if (endGame) {
+                //noinspection ConstantConditions
+                lobby.setGameEnd(endGame);
                 final GameUser maxHealth = lobby.getUserWithMaxHealth();
                 accountService.addUserScore(maxHealth.getUsername(), maxHealth.getHealth());
             } else {

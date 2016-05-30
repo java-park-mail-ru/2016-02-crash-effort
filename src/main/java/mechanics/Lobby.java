@@ -12,10 +12,13 @@ public class Lobby {
     private boolean firstUserTurn;
     private int round;
 
+    private boolean gameEnd;
+
     public Lobby(GameUser firstUser){
         this.firstUser = firstUser;
         firstUserTurn = true;
         round = 1;
+        gameEnd = false;
     }
 
     public GameUser getFirstUser() {
@@ -74,6 +77,14 @@ public class Lobby {
 
     public boolean isLastRound() {
         return round > 4;
+    }
+
+    public boolean isGameEnd() {
+        return gameEnd;
+    }
+
+    public void setGameEnd(boolean gameEnd) {
+        this.gameEnd = gameEnd;
     }
 
     public void setAllWaiting() {
