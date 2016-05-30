@@ -80,7 +80,7 @@ public class GameWebSocket implements Subscriber {
     }
 
     public boolean isOpen() {
-        return currentSession.isOpen();
+        return (currentSession != null) && currentSession.isOpen();
     }
 
     public void close(int statusCode, String reason) {
