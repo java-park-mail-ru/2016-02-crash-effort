@@ -28,6 +28,7 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
         this.messageSystem = messageSystem;
         this.accountService = accountService;
         address = new Address();
+        messageSystem.register(address);
         cards = new JSONArray(FileHelper.readAllText(CARDS));
     }
 

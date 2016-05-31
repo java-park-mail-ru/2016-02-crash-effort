@@ -35,6 +35,7 @@ public class GameWebSocketService implements Runnable {
                     if (ws.isOpen()) {
                         messageSystem.execForSubscriber(ws);
                     } else {
+                        messageSystem.remove(ws.getAddress());
                         it.remove();
                     }
                 }

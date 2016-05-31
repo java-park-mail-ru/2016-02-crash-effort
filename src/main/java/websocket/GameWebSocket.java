@@ -33,6 +33,7 @@ public class GameWebSocket implements Subscriber {
         this.messageSystem = messageSystem;
         this.sessionId = sessionId;
         address = new Address();
+        messageSystem.register(address);
         this.addressGM = addressGM;
     }
 
