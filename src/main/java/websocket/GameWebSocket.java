@@ -17,7 +17,7 @@ import java.io.IOException;
  */
 @WebSocket
 public class GameWebSocket implements Subscriber {
-    private static final int SOCKET_IDLE_TIME = 5 * 1000 * 60;
+    private static final int SOCKET_IDLE_TIME = 20 * 1000 * 60;
 
     private final AccountService accountService;
     private final String sessionId;
