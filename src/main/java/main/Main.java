@@ -79,6 +79,7 @@ public class Main {
         //noinspection IOResourceOpenedButNotSafelyClosed,resource
         final ServerConnector serverConnector = new ServerConnector(server);
         serverConnector.setPort(configuration.getPort());
+        serverConnector.setHost("127.0.0.1");
 
         final HttpConfiguration https = new HttpConfiguration();
         https.addCustomizer(new SecureRequestCustomizer());
@@ -92,6 +93,7 @@ public class Main {
         final ServerConnector sslConnector = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"),
                 new HttpConnectionFactory(https));
         sslConnector.setPort(configuration.getSslPort());
+        sslConnector.setHost("127.0.0.1");
 
         server.setConnectors(new Connector[] { serverConnector, sslConnector });
 
