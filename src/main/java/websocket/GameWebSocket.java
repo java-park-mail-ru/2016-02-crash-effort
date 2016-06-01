@@ -25,16 +25,17 @@ public class GameWebSocket implements Subscriber {
     private Session currentSession;
 
     private final MessageSystem messageSystem;
-    private final Address address;
+    private Address address;
     private final Address addressGM;
+
+    private boolean connecting;
 
     public GameWebSocket(String sessionId, AccountService accountService, MessageSystem messageSystem, Address addressGM) {
         this.accountService = accountService;
         this.messageSystem = messageSystem;
         this.sessionId = sessionId;
-        address = new Address();
-        messageSystem.register(address);
         this.addressGM = addressGM;
+        connecting = true;
     }
 
     @SuppressWarnings("unused")
@@ -49,6 +50,10 @@ public class GameWebSocket implements Subscriber {
     @SuppressWarnings("unused")
     @OnWebSocketConnect
     public void onConnect(Session session) {
+        address = new Address();
+        messageSystem.register(address);
+        connecting = false;
+
         currentSession = session;
         currentSession.setIdleTimeout(SOCKET_IDLE_TIME);
         final UserProfile user = accountService.getUserBySession(sessionId);
@@ -80,8 +85,12 @@ public class GameWebSocket implements Subscriber {
         }
     }
 
+    public boolean isConnecting() {
+        return connecting;
+    }
+
     public boolean isOpen() {
-        return (currentSession != null) && currentSession.isOpen();
+        return currentSession != null && currentSession.isOpen();
     }
 
     public void close(int statusCode, String reason) {

@@ -1,9 +1,9 @@
 package msgsystem;
 
 import javax.inject.Singleton;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class MessageSystem {
     public static final int IDLE_TIME = 100;
 
-    private final Map<Address, ConcurrentLinkedQueue<MsgBase>> messages = new HashMap<>();
+    private final Map<Address, ConcurrentLinkedQueue<MsgBase>> messages = new ConcurrentHashMap<>();
 
     public void register(Address address) {
         messages.put(address, new ConcurrentLinkedQueue<>());
