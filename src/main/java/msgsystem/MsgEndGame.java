@@ -9,10 +9,12 @@ import websocket.GameWebSocket;
 public class MsgEndGame extends MsgToWS {
 
     private final boolean win;
+    private final boolean mana;
 
-    public MsgEndGame(Address from, Address to, boolean win) {
+    public MsgEndGame(Address from, Address to, boolean win, boolean mana) {
         super(from, to);
         this.win = win;
+        this.mana = mana;
     }
 
     @Override
@@ -20,6 +22,7 @@ public class MsgEndGame extends MsgToWS {
         final JSONObject jsonObject = new JSONObject();
         jsonObject.put("command", "endGame");
         jsonObject.put("win", win);
+        jsonObject.put("mana", mana);
         gameWebSocket.sendMessage(jsonObject.toString());
     }
 }

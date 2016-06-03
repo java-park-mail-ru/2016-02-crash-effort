@@ -148,11 +148,11 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
 
             final MsgBase msgEndRoundFirst = new MsgEndRound(address, userToSocketAddress.get(lobby.getFirstUser().getUsername()),
                     lobby.getFirstUser().getHealth(), lobby.getSecondUser().getHealth(), lobby.getFirstUser().getPower(),
-                    lobby.getSecondUser().getPower(), lobby.getSecondUser().getRoundCards());
+                    lobby.getSecondUser().getPower(), lobby.getSecondUser().getRoundCards().length(), lobby.getSecondUser().getRoundCards());
             messageSystem.sendMessage(msgEndRoundFirst);
             final MsgBase msgEndRoundSecond = new MsgEndRound(address, userToSocketAddress.get(lobby.getSecondUser().getUsername()),
                     lobby.getSecondUser().getHealth(), lobby.getFirstUser().getHealth(), lobby.getSecondUser().getPower(),
-                    lobby.getFirstUser().getPower(), lobby.getFirstUser().getRoundCards());
+                    lobby.getFirstUser().getPower(), -1, lobby.getFirstUser().getRoundCards());
             messageSystem.sendMessage(msgEndRoundSecond);
 
             final boolean endGame = endRound(lobby);
@@ -197,11 +197,11 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
 
     private boolean endRound(Lobby lobby) {
         if (isManaWin(lobby.getFirstUser())) {
-            sendWin(lobby.getFirstUser());
+            sendManaWin(lobby.getFirstUser());
             sendLose(lobby.getSecondUser());
             return true;
         } else if (isManaWin(lobby.getSecondUser())) {
-            sendWin(lobby.getSecondUser());
+            sendManaWin(lobby.getSecondUser());
             sendLose(lobby.getFirstUser());
             return true;
         }
@@ -265,12 +265,17 @@ public class GameMechanicsImpl implements GameMechanics, Subscriber, Runnable {
     }
 
     private void sendWin(GameUser user) {
-        final MsgBase msgEndGame = new MsgEndGame(address, userToSocketAddress.get(user.getUsername()), true);
+        final MsgBase msgEndGame = new MsgEndGame(address, userToSocketAddress.get(user.getUsername()), true, false);
+        messageSystem.sendMessage(msgEndGame);
+    }
+
+    private void sendManaWin(GameUser user) {
+        final MsgBase msgEndGame = new MsgEndGame(address, userToSocketAddress.get(user.getUsername()), true, true);
         messageSystem.sendMessage(msgEndGame);
     }
 
     private void sendLose(GameUser user) {
-        final MsgBase msgEndGame = new MsgEndGame(address, userToSocketAddress.get(user.getUsername()), false);
+        final MsgBase msgEndGame = new MsgEndGame(address, userToSocketAddress.get(user.getUsername()), false, false);
         messageSystem.sendMessage(msgEndGame);
     }
 
