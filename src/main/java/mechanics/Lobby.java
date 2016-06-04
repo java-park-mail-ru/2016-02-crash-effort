@@ -9,11 +9,16 @@ public class Lobby {
     private final GameUser firstUser;
     private GameUser secondUser;
 
-    boolean firstUserTurn;
+    private boolean firstUserTurn;
+    private int round;
+
+    private boolean gameEnd;
 
     public Lobby(GameUser firstUser){
         this.firstUser = firstUser;
         firstUserTurn = true;
+        round = 1;
+        gameEnd = false;
     }
 
     public GameUser getFirstUser() {
@@ -36,10 +41,24 @@ public class Lobby {
     public GameUser getUserbyName(String username) {
         if (username.equals(firstUser.getUsername()))
             return firstUser;
-        else if (username.equals(secondUser.getUsername()))
+        else if (secondUser != null && username.equals(secondUser.getUsername()))
             return secondUser;
         else
             return null;
+    }
+
+    @Nullable
+    public GameUser getEnemybyName(String username) {
+        if (username.equals(firstUser.getUsername()))
+            return secondUser;
+        else if (secondUser != null && username.equals(secondUser.getUsername()))
+            return firstUser;
+        else
+            return null;
+    }
+
+    public GameUser getUserWithMaxHealth() {
+        return (firstUser.getHealth() < secondUser.getHealth()) ? secondUser : firstUser;
     }
 
     public boolean isFirstUserTurn() {
@@ -52,6 +71,20 @@ public class Lobby {
 
     public void nextTurn() {
         firstUserTurn = !firstUserTurn;
+    }
+
+    public void nextRound() { ++round; }
+
+    public boolean isLastRound() {
+        return round > 4;
+    }
+
+    public boolean isGameEnd() {
+        return gameEnd;
+    }
+
+    public void setGameEnd(boolean gameEnd) {
+        this.gameEnd = gameEnd;
     }
 
     public void setAllWaiting() {

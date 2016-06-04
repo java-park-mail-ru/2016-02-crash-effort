@@ -2,7 +2,7 @@ package main;
 
 import db.Database;
 import org.jetbrains.annotations.Nullable;
-import threading.ThreadConverter;
+
 import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,7 +13,7 @@ import java.util.Map;
  * Created by vladislav on 28.03.16.
  */
 public class AccountServiceImpl implements AccountService {
-    Database database;
+    private Database database;
 
     public AccountServiceImpl(String name, String host, int port, String username, String password) throws SQLException, IOException {
         database = new Database(name, host, port, username, password);
@@ -25,8 +25,12 @@ public class AccountServiceImpl implements AccountService {
         try {
             if (!userProfile.getImgData().isEmpty()) {
                 final String filename = String.format("avatars/%s.png", userProfile.getLogin());
-                final ThreadConverter threadConverter = new ThreadConverter(userProfile.getImgData(), filename);
-                threadConverter.start();
+                try {
+                    FileHelper.base64ToImage(userProfile.getImgData(), filename);
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                    return null;
+                }
             }
 
             final int id = database.execUpdate(String.format("INSERT INTO User (login, password, email) VALUES ('%s', '%s', '%s')",
@@ -164,6 +168,18 @@ public class AccountServiceImpl implements AccountService {
         }
         return scoreboard;
     }
+
+    @Override
+    public boolean addUserScore(String login, int score) {
+        try {
+            database.execUpdate(String.format("UPDATE User SET score=score+%d WHERE login='%s'", score, login));
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
 
     private void resultToUserProfile(UserProfile userProfile, ResultSet resultSet) throws SQLException {
         userProfile.setId(resultSet.getLong("id"));

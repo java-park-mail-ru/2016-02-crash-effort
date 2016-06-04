@@ -1,10 +1,11 @@
 package main;
 
-import mechanics.GameMechanics;
 import mechanics.GameMechanicsImpl;
-import org.eclipse.jetty.server.Server;
+import msgsystem.MessageSystem;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -35,7 +36,7 @@ public class Main {
 
     private static final String CONFIG = "cfg/server.properties";
 
-    @SuppressWarnings("OverlyBroadThrowsClause")
+    @SuppressWarnings({"OverlyBroadThrowsClause", "IOResourceOpenedButNotSafelyClosed"})
     public static void main(String[] args) throws Exception {
         final Configuration configuration;
         try {
@@ -59,9 +60,12 @@ public class Main {
             return;
         }
 
-        final GameMechanics gameMechanics;
+        final MessageSystem messageSystem = new MessageSystem();
+
+        final GameMechanicsImpl gameMechanics;
         try {
-            gameMechanics = new GameMechanicsImpl();
+            gameMechanics = new GameMechanicsImpl(messageSystem, accountService);
+            gameMechanics.start();
         } catch (IOException e) {
             System.out.println("Game Mechanics error:");
             System.out.println(e.getMessage());
@@ -72,14 +76,38 @@ public class Main {
         System.out.append("Starting at port: ").append(String.valueOf(configuration.getPort())).append('\n');
 
         final Server server = new Server(configuration.getPort());
+        //noinspection IOResourceOpenedButNotSafelyClosed,resource
+        final ServerConnector serverConnector = new ServerConnector(server);
+        serverConnector.setPort(configuration.getPort());
+        serverConnector.setHost("127.0.0.1");
+
+        final HttpConfiguration https = new HttpConfiguration();
+        https.addCustomizer(new SecureRequestCustomizer());
+
+        final SslContextFactory sslContextFactory = new SslContextFactory();
+        sslContextFactory.setKeyStorePath("cfg/keystore.jks");
+        sslContextFactory.setKeyStorePassword("123456");
+        sslContextFactory.setKeyManagerPassword("123456");
+
+        //noinspection IOResourceOpenedButNotSafelyClosed,resource
+        final ServerConnector sslConnector = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"),
+                new HttpConnectionFactory(https));
+        sslConnector.setPort(configuration.getSslPort());
+        sslConnector.setHost("127.0.0.1");
+
+        server.setConnectors(new Connector[] { serverConnector, sslConnector });
+
         final ServletContextHandler contextHandler = new ServletContextHandler(server, "/api", ServletContextHandler.SESSIONS);
         final ResourceConfig config = new ResourceConfig(Session.class, Users.class, Scoreboard.class);
         config.register(new AccountServiceAbstractBinder(accountService));
         contextHandler.addServlet(new ServletHolder(new ServletContainer(config)), "/*");
-        contextHandler.addServlet(new ServletHolder(new GameWebSocketServlet(accountService, gameMechanics)), "/gameplay");
+        contextHandler.addServlet(new ServletHolder(new GameWebSocketServlet(accountService, messageSystem, gameMechanics.getAddress())), "/gameplay");
         server.setHandler(contextHandler);
 
         server.start();
         server.join();
+
+        serverConnector.close();
+        sslConnector.close();
     }
 }

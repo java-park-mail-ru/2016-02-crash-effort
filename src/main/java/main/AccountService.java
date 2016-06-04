@@ -16,4 +16,5 @@ public interface AccountService {
     UserProfile getUserBySession(String hash);
     UserProfile getUserByLogin(String login);
     Map<UserProfile, Integer> getScoreboard();
+    boolean addUserScore(String login, int score);
 }

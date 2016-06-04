@@ -46,7 +46,7 @@ public class ApiSuccessTest extends JerseyTest {
         }
     }
 
-    Faker faker;
+    private Faker faker;
     private static final String CONFIG = "cfg/server.properties";
 
     @Override
@@ -91,6 +91,7 @@ public class ApiSuccessTest extends JerseyTest {
         jsonObject.put("login", faker.name().firstName());
         jsonObject.put("password", faker.name().lastName());
         jsonObject.put("email", faker.internet().emailAddress());
+        jsonObject.put("imgData", "");
         final String json = target("user").request(MediaType.APPLICATION_JSON).put(Entity.json(jsonObject.toString()), String.class);
         assertFalse(json.equals(ValidationHelper.EMPTY_JSON));
         assert(json.contains("id"));
@@ -126,12 +127,14 @@ public class ApiSuccessTest extends JerseyTest {
         jsonObject.put("login", faker.name().firstName());
         jsonObject.put("password", faker.name().lastName());
         jsonObject.put("email", faker.internet().emailAddress());
+        jsonObject.put("imgData", "");
         final String json = target("user").path("1").request(MediaType.APPLICATION_JSON).post(Entity.json(jsonObject.toString()), String.class);
         assert(json.contains("id") && json.contains("1"));
         final JSONObject jsonObject1 = new JSONObject();
         jsonObject1.put("login", "admin");
         jsonObject1.put("password", "admin");
         jsonObject1.put("email", "admin@admin.com");
+        jsonObject1.put("imgData", "");
         final String json1 = target("user").path("1").request(MediaType.APPLICATION_JSON).post(Entity.json(jsonObject1.toString()), String.class);
         assert(json1.contains("id") && json1.contains("1"));
     }

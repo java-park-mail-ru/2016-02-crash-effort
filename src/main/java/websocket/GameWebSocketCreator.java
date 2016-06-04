@@ -1,25 +1,29 @@
 package websocket;
 
 import main.AccountService;
-import mechanics.GameMechanics;
+import msgsystem.Address;
+import msgsystem.MessageSystem;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
 import org.jetbrains.annotations.Nullable;
-
 import javax.servlet.http.HttpSession;
 
 /**
  * Created by vladislav on 19.04.16.
  */
 public class GameWebSocketCreator implements WebSocketCreator {
-
     private final AccountService accountService;
-    private final GameMechanics gameMechanics;
+    private final MessageSystem messageSystem;
+    private final Address addressGM;
+    private final GameWebSocketService gameWebSocketService;
 
-    GameWebSocketCreator(AccountService accountService, GameMechanics gameMechanics) {
+    GameWebSocketCreator(AccountService accountService, MessageSystem messageSystem, Address addressGM) {
         this.accountService = accountService;
-        this.gameMechanics = gameMechanics;
+        this.messageSystem = messageSystem;
+        this.addressGM = addressGM;
+        gameWebSocketService = new GameWebSocketService(messageSystem);
+        gameWebSocketService.start();
     }
 
     @Nullable
@@ -32,6 +36,8 @@ public class GameWebSocketCreator implements WebSocketCreator {
         }
         final String sessionId = session.getId();
 
-        return new GameWebSocket(sessionId, accountService, gameMechanics);
+        final GameWebSocket gameWebSocket = new GameWebSocket(sessionId, accountService, messageSystem, addressGM);
+        gameWebSocketService.add(gameWebSocket);
+        return gameWebSocket;
     }
 }

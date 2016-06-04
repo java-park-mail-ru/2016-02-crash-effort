@@ -17,7 +17,7 @@ import java.sql.SQLException;
 @SuppressWarnings("unused")
 public class AccountServiceErrorTest extends Assert {
 
-    AccountService accountService;
+    private AccountService accountService;
     private static final String CONFIG = "cfg/server.properties";
 
     @Before

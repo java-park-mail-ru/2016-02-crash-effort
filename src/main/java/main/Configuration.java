@@ -9,12 +9,13 @@ import java.util.Properties;
  */
 public class Configuration {
 
-    int port;
-    String dbHost;
-    int dbPort;
-    String dbUsername;
-    String dbPassword;
-    String dbName;
+    private int port;
+    private int sslPort;
+    private String dbHost;
+    private int dbPort;
+    private String dbUsername;
+    private String dbPassword;
+    private String dbName;
 
     @SuppressWarnings("OverlyBroadThrowsClause")
     public Configuration(String filename) throws IOException, NumberFormatException {
@@ -24,6 +25,7 @@ public class Configuration {
         }
 
         port = Integer.valueOf(properties.getProperty("port"));
+        sslPort = Integer.valueOf(properties.getProperty("ssl_port"));
         dbHost = properties.getProperty("db_host");
         dbPort = Integer.valueOf(properties.getProperty("db_port"));
         dbUsername = properties.getProperty("db_username");
@@ -33,6 +35,10 @@ public class Configuration {
 
     public int getPort() {
         return port;
+    }
+
+    public int getSslPort() {
+        return sslPort;
     }
 
     public String getDbHost() {

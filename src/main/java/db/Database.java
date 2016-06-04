@@ -2,7 +2,6 @@ package db;
 
 import main.FileHelper;
 import org.apache.commons.dbcp2.BasicDataSource;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -15,7 +14,7 @@ import java.sql.Statement;
 public class Database implements AutoCloseable {
 
     private static final int VERSION = 2;
-    final BasicDataSource dataSource;
+    private final BasicDataSource dataSource;
 
     public Database(String name, String host, int port, String username, String password) throws SQLException, IOException {
         dataSource = new BasicDataSource();
@@ -29,8 +28,7 @@ public class Database implements AutoCloseable {
     private void initDatabase() throws SQLException, IOException {
         execUpdate(getSQLScript(1));
 
-        final String queryVersion = "SELECT version FROM Version";
-        final int dbVersion = execQuery(queryVersion,
+        final int dbVersion = execQuery("SELECT version FROM Version",
                 result -> {
                     result.next();
                     return result.getInt("version");

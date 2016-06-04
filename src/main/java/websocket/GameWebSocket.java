@@ -2,7 +2,7 @@ package websocket;
 
 import main.AccountService;
 import main.UserProfile;
-import mechanics.GameMechanics;
+import msgsystem.*;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -16,32 +16,42 @@ import java.io.IOException;
  * Created by vladislav on 19.04.16.
  */
 @WebSocket
-public class GameWebSocket {
-
-    private final GameMechanics gameMechanics;
+public class GameWebSocket implements Subscriber {
     private final AccountService accountService;
     private final String sessionId;
-
     private String username;
     private Session currentSession;
 
-    GameWebSocket(String sessionId, AccountService accountService, GameMechanics gameMechanics) {
+    private final MessageSystem messageSystem;
+    private Address address;
+    private final Address addressGM;
+
+    private boolean connecting;
+
+    public GameWebSocket(String sessionId, AccountService accountService, MessageSystem messageSystem, Address addressGM) {
         this.accountService = accountService;
-        this.gameMechanics = gameMechanics;
+        this.messageSystem = messageSystem;
         this.sessionId = sessionId;
+        this.addressGM = addressGM;
+        connecting = true;
     }
 
     @SuppressWarnings("unused")
     @OnWebSocketMessage
-    public void onMessage(Session session, String text) {
+    public void onMessage(Session session, String data) {
         if (username == null) return;
 
-        gameMechanics.onMessage(username, text);
+        final MsgBase msgData = new MsgInData(address, addressGM, username, data);
+        messageSystem.sendMessage(msgData);
     }
 
     @SuppressWarnings("unused")
     @OnWebSocketConnect
     public void onConnect(Session session) {
+        address = new Address();
+        messageSystem.register(address);
+        connecting = false;
+
         currentSession = session;
         final UserProfile user = accountService.getUserBySession(sessionId);
         if (user == null) {
@@ -49,20 +59,19 @@ public class GameWebSocket {
             return;
         }
         username = user.getLogin();
-        if (gameMechanics.isRegistered(username)) {
-            session.close(Response.SC_FORBIDDEN, "You has already opened session connected to this resource");
-            return;
-        }
 
-        gameMechanics.registerUser(username, this);
+        final MsgBase messageRegister = new MsgRegister(address, addressGM, username);
+        messageSystem.sendMessage(messageRegister);
     }
 
     @SuppressWarnings("unused")
     @OnWebSocketClose
     public void onDisconnect(int statusCode, String reason) {
         System.out.println("User disconnected with code " + statusCode + " by reason: " + reason);
-        if (username != null)
-            gameMechanics.unregisterUser(username);
+        if (username != null) {
+            final MsgBase messageUnregister = new MsgUnregister(address, addressGM, username);
+            messageSystem.sendMessage(messageUnregister);
+        }
     }
 
     public void sendMessage(String message) {
@@ -73,8 +82,26 @@ public class GameWebSocket {
         }
     }
 
-    public void disconnect() {
-        currentSession.close();
+    public boolean isConnecting() {
+        return connecting;
+    }
+
+    public boolean isOpen() {
+        return currentSession != null && currentSession.isOpen();
+    }
+
+    public void close(int statusCode, String reason) {
+        currentSession.close(statusCode, reason);
+    }
+
+    @Override
+    public Address getAddress() {
+        return address;
+    }
+
+    @Override
+    public MessageSystem getMessageSystem() {
+        return messageSystem;
     }
 
 }

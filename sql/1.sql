@@ -18,5 +18,3 @@ CREATE TABLE IF NOT EXISTS `Version` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 INSERT IGNORE INTO Version (id) VALUES (1);
-INSERT IGNORE INTO User (id, login, password, email) VALUES (1, 'admin', 'admin', 'admin@admin.com');
-INSERT IGNORE INTO User (id, login, password, email) VALUES (2, 'guest', '12345', 'guest@guest.com');

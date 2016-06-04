@@ -17,8 +17,8 @@ import java.sql.SQLException;
 @SuppressWarnings("unused")
 public class AccountServiceSuccessTest extends Assert {
 
-    Faker faker;
-    AccountService accountService;
+    private Faker faker;
+    private AccountService accountService;
     private static final String CONFIG = "cfg/server.properties";
 
     @Before
@@ -47,6 +47,7 @@ public class AccountServiceSuccessTest extends Assert {
     @Test
     public void testAddUser() {
         final UserProfile userProfile = new UserProfile(faker.name().firstName(), faker.name().lastName(), faker.internet().emailAddress());
+        userProfile.setImgData("");
         accountService.addUser(userProfile);
         assertNotNull(userProfile);
     }
@@ -118,5 +119,11 @@ public class AccountServiceSuccessTest extends Assert {
         assertNotNull(userProfile);
         assertEquals(login, userProfile.getLogin());
         assertEquals(login, userProfile.getPassword());
+    }
+
+    @Test
+    public void testAddScore() {
+        final boolean res = accountService.addUserScore("admin", 5);
+        assertTrue(res);
     }
 }

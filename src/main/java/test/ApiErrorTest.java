@@ -28,7 +28,7 @@ import static org.mockito.Mockito.mock;
  */
 @SuppressWarnings("unused")
 public class ApiErrorTest extends JerseyTest {
-    Faker faker;
+    private Faker faker;
     private static final String CONFIG = "cfg/server.properties";
 
     @Override
@@ -98,6 +98,7 @@ public class ApiErrorTest extends JerseyTest {
         jsonObject.put("login", faker.name().firstName());
         jsonObject.put("password", faker.name().lastName());
         jsonObject.put("email", faker.internet().emailAddress());
+        jsonObject.put("imgData", "");
         final Response json = target("user").path("1").request(MediaType.APPLICATION_JSON).post(Entity.json(jsonObject.toString()));
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), json.getStatus());
     }
@@ -105,7 +106,7 @@ public class ApiErrorTest extends JerseyTest {
     @Test
     public void testErrorGetUserById() {
         final Response json = target("user").path("1000").request(MediaType.APPLICATION_JSON).get();
-        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), json.getStatus());
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), json.getStatus());
     }
 
     @Test
